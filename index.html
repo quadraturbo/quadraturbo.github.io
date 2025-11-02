@@ -1092,61 +1092,26 @@
         }, false);
         
  // Persistencia botón respeto       
-(function() {
-  const respectBtn = document.getElementById('respect-btn');
-  const respectCounter = document.getElementById('respect-count');
+const respectBtn = document.getElementById('respect-btn');
+const respectCounter = document.getElementById('respect-count');
 
-  const API_KEY = 'z84iUn0k5gWqiVVJOvdJ3E5_A6gJsCYZW1WPvTHEHOA';
-  const NAMESPACE = 'respeto';
-  const KEY = 'contador';
+const NAMESPACE = 'tu-usuario-github'; 
+const KEY = 'respeto';
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'X-API-Key': API_KEY
-  };
+async function fetchRespect() {
+  const res = await fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${KEY}`);
+  const data = await res.json();
+  respectCounter.textContent = data.value ?? 0;
+}
 
-  // Obtener valor actual
-  function fetchRespect() {
-    fetch('https://letscountapi.com/api/count/' + NAMESPACE + '/' + KEY, { method: 'GET', headers: headers })
-      .then(res => res.json())
-      .then(data => {
-        respectCounter.textContent = (data.value !== undefined) ? data.value : 0;
-      })
-      .catch(err => {
-        console.error('Error al obtener respeto:', err);
-        respectCounter.textContent = '0';
-      });
-  }
+async function incrementRespect() {
+  const res = await fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${KEY}`);
+  const data = await res.json();
+  respectCounter.textContent = data.value ?? 0;
+}
 
-  // Incrementar valor
-  let canClick = true;
-  function incrementRespect() {
-    if (!canClick) return;
-    canClick = false;
-    respectBtn.disabled = true;
-
-    fetch('https://letscountapi.com/api/count/' + NAMESPACE + '/' + KEY + '/increment', {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify({ by: 1 })
-    })
-      .then(res => res.json())
-      .then(data => {
-        respectCounter.textContent = (data.value !== undefined) ? data.value : 0;
-      })
-      .catch(err => console.error('Error al incrementar respeto:', err))
-      .finally(() => {
-        setTimeout(function() {
-          canClick = true;
-          respectBtn.disabled = false;
-        }, 3000);
-      });
-  }
-
-  // Inicializar
-  fetchRespect();
-  respectBtn.addEventListener('click', incrementRespect);
-})();
+respectBtn.addEventListener('click', incrementRespect);
+fetchRespect();
     </script>
 </body>
 </html>
