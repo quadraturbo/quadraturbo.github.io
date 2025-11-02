@@ -754,6 +754,11 @@
                 transform: scale(1.1);
             }
         }
+.terminal {
+    margin-bottom: 4rem; 
+}
+        
+        
     </style>
 </head>
 <body>
@@ -765,7 +770,7 @@
 
     <header>
         <nav>
-            <div class="logo">QuadraTurbo</div>
+            <div class="logo">quadraturbo</div>
             <ul>
                 <li><a href="#projects">Proyectos</a></li>
                 <li><a href="#research">Research</a></li>
@@ -956,6 +961,13 @@
                 </div>
             </section>
         </div>
+        <section id="respect-section" style="text-align:center; margin: 3rem 0;">
+    <button id="respect-btn" class="btn btn-secondary">🙏 Dar Respeto</button>
+    <div style="margin-top: 0.5rem; font-size: clamp(1rem, 2vw, 1.2rem); color: var(--primary);">
+        Total de respetos: <span id="respect-count">0</span>
+    </div>
+</section>
+
     </main>
 
     <footer>
@@ -1078,6 +1090,63 @@
             }
             lastTouchEnd = now;
         }, false);
+        
+ // Persistencia botón respeto       
+(function() {
+  const respectBtn = document.getElementById('respect-btn');
+  const respectCounter = document.getElementById('respect-count');
+
+  const API_KEY = 'z84iUn0k5gWqiVVJOvdJ3E5_A6gJsCYZW1WPvTHEHOA';
+  const NAMESPACE = 'respeto';
+  const KEY = 'contador';
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-API-Key': API_KEY
+  };
+
+  // Obtener valor actual
+  function fetchRespect() {
+    fetch('https://letscountapi.com/api/count/' + NAMESPACE + '/' + KEY, { method: 'GET', headers: headers })
+      .then(res => res.json())
+      .then(data => {
+        respectCounter.textContent = (data.value !== undefined) ? data.value : 0;
+      })
+      .catch(err => {
+        console.error('Error al obtener respeto:', err);
+        respectCounter.textContent = '0';
+      });
+  }
+
+  // Incrementar valor
+  let canClick = true;
+  function incrementRespect() {
+    if (!canClick) return;
+    canClick = false;
+    respectBtn.disabled = true;
+
+    fetch('https://letscountapi.com/api/count/' + NAMESPACE + '/' + KEY + '/increment', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({ by: 1 })
+    })
+      .then(res => res.json())
+      .then(data => {
+        respectCounter.textContent = (data.value !== undefined) ? data.value : 0;
+      })
+      .catch(err => console.error('Error al incrementar respeto:', err))
+      .finally(() => {
+        setTimeout(function() {
+          canClick = true;
+          respectBtn.disabled = false;
+        }, 3000);
+      });
+  }
+
+  // Inicializar
+  fetchRespect();
+  respectBtn.addEventListener('click', incrementRespect);
+})();
     </script>
 </body>
 </html>
