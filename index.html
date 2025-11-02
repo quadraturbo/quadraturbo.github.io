@@ -153,6 +153,8 @@
             width: 100%;
         }
 
+
+        
         /* Terminal hero */
         .hero {
             max-width: 1200px;
@@ -754,8 +756,19 @@
                 transform: scale(1.1);
             }
         }
+
+             .stats {
+                 margin-top: 80px;
+             }
+             .stats {
+                margin-bottom: 20px;
+             }
+
     </style>
 </head>
+    
+
+
 <body>
     <!-- Canvas para efecto matrix -->
     <canvas id="matrix-canvas"></canvas>
@@ -765,7 +778,7 @@
 
     <header>
         <nav>
-            <div class="logo">QuadraTurbo</div>
+            <div class="logo">quadraturbo</div>
             <ul>
                 <li><a href="#projects">Proyectos</a></li>
                 <li><a href="#research">Research</a></li>
@@ -1079,5 +1092,65 @@
             lastTouchEnd = now;
         }, false);
     </script>
+   
+   
+<script>
+const canvas = document.getElementById("matrix-canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+
+const chars = "アァカサタナハマヤャラワン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const fontSize = 16;
+const columns = canvas.width / fontSize;
+const drops = Array(Math.floor(columns)).fill(1);
+
+function drawMatrix() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#00ff88";
+    ctx.font = `${fontSize}px monospace`;
+
+    for (let i = 0; i < drops.length; i++) {
+        const text = chars.charAt(Math.floor(Math.random() * chars.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+        }
+        drops[i]++;
+    }
+}
+
+setInterval(drawMatrix, 35);
+
+window.addEventListener("resize", () => {
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+});
+</script>
+
+<script>
+const scrollIndicator = document.getElementById("scrollIndicator");
+
+window.addEventListener("scroll", () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = (scrollTop / docHeight) * 100;
+    scrollIndicator.style.width = `${scrollPercent}%`;
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const lines = document.querySelectorAll(".terminal-line");
+    lines.forEach((line, i) => {
+        setTimeout(() => line.style.opacity = "1", i * 400);
+    });
+});
+</script>
+
 </body>
 </html>
