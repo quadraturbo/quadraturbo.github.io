@@ -39,7 +39,6 @@
             overflow-x: hidden;
         }
 
-        /* Optimizado: Scanlines con menor impacto */
         body::before {
             content: '';
             position: fixed;
@@ -57,10 +56,8 @@
             pointer-events: none;
             z-index: 9999;
             opacity: 0.3;
-            will-change: auto;
         }
 
-        /* Grid background optimizado */
         #grid-canvas {
             position: fixed;
             top: 0;
@@ -71,7 +68,6 @@
             opacity: 0.15;
         }
 
-        /* Header optimizado */
         header {
             position: fixed;
             top: 0;
@@ -81,11 +77,6 @@
             border-bottom: 1px solid rgba(0, 255, 136, 0.2);
             padding: 1rem 0;
             z-index: 1000;
-            transition: transform 0.3s ease;
-        }
-
-        header.hidden {
-            transform: translateY(-100%);
         }
 
         nav {
@@ -102,23 +93,28 @@
             font-weight: 700;
             color: var(--primary);
             text-shadow: 0 0 10px var(--glow);
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
 
         .logo::before {
-            content: '[';
+            content: '◢';
             color: var(--secondary);
+            margin-right: 0.5rem;
+            animation: rotate 4s linear infinite;
+            display: inline-block;
         }
 
         .logo::after {
-            content: ']';
-            color: var(--secondary);
-            animation: blink 1.5s infinite;
+            content: '◣';
+            color: var(--accent);
+            margin-left: 0.5rem;
+            animation: rotate 4s linear infinite reverse;
+            display: inline-block;
         }
 
-        @keyframes blink {
-            0%, 49% { opacity: 1; }
-            50%, 100% { opacity: 0; }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         nav ul {
@@ -153,7 +149,6 @@
             color: var(--primary);
         }
 
-        /* Hero optimizado */
         .hero {
             min-height: 100vh;
             display: flex;
@@ -189,6 +184,16 @@
             text-transform: uppercase;
         }
 
+        .hero-subtitle::before {
+            content: '[ ';
+            color: var(--primary);
+        }
+
+        .hero-subtitle::after {
+            content: ' ]';
+            color: var(--primary);
+        }
+
         .hero-description {
             font-size: clamp(0.9rem, 2vw, 1.1rem);
             color: var(--text);
@@ -197,7 +202,6 @@
             line-height: 1.8;
         }
 
-        /* Terminal optimizado */
         .terminal-window {
             background: rgba(10, 14, 39, 0.95);
             border: 2px solid var(--primary);
@@ -264,7 +268,6 @@
             margin-left: 2rem;
         }
 
-        /* CTA Buttons */
         .cta-container {
             display: flex;
             gap: 1.5rem;
@@ -284,7 +287,6 @@
             border: 2px solid;
             border-radius: 8px;
             transition: all 0.3s ease;
-            overflow: hidden;
             font-family: 'Space Mono', monospace;
         }
 
@@ -313,99 +315,108 @@
             transform: translateY(-2px);
         }
 
-        /* Respect Button - Botón interactivo de respeto */
-        .respect-container {
+        /* Sistema de reputación estilo hacker */
+        .reputation-system {
             position: fixed;
             bottom: 2rem;
             right: 2rem;
             z-index: 999;
         }
 
-        .respect-btn {
+        .reputation-btn {
             position: relative;
-            width: 70px;
-            height: 70px;
-            border: 3px solid var(--accent);
-            border-radius: 50%;
             background: rgba(10, 14, 39, 0.95);
-            backdrop-filter: blur(10px);
+            border: 2px solid var(--primary);
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            box-shadow: 0 0 30px rgba(255, 0, 110, 0.4);
+            gap: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
         }
 
-        .respect-btn:hover {
-            transform: scale(1.15) rotate(10deg);
-            box-shadow: 0 0 50px rgba(255, 0, 110, 0.8);
-            border-color: var(--primary);
+        .reputation-btn::before {
+            content: '>';
+            color: var(--secondary);
         }
 
-        .respect-btn:active {
+        .reputation-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+            border-color: var(--secondary);
+        }
+
+        .reputation-btn:active {
             transform: scale(0.95);
         }
 
-        .respect-btn.clicked {
-            animation: respectPulse 0.6s ease;
+        .reputation-btn.clicked {
+            animation: reputationPulse 0.4s ease;
         }
 
-        @keyframes respectPulse {
+        @keyframes reputationPulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.3); }
+            50% { transform: scale(1.05); }
         }
 
-        .respect-counter {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: var(--accent);
-            color: var(--darker);
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
+        .reputation-icon {
+            font-size: 1.2rem;
+        }
+
+        .reputation-count {
             font-weight: 700;
-            box-shadow: 0 0 20px rgba(255, 0, 110, 0.6);
+            color: var(--text);
         }
 
-        .respect-popup {
+        .reputation-tooltip {
             position: absolute;
-            bottom: 80px;
+            bottom: calc(100% + 15px);
             right: 0;
             background: rgba(10, 14, 39, 0.98);
-            border: 2px solid var(--accent);
-            border-radius: 12px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
             padding: 1rem 1.5rem;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease;
             white-space: nowrap;
-            box-shadow: 0 0 30px rgba(255, 0, 110, 0.4);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
         }
 
-        .respect-popup.show {
+        .reputation-tooltip.show {
             opacity: 1;
         }
 
-        .respect-popup::after {
+        .reputation-tooltip::after {
             content: '';
             position: absolute;
-            bottom: -10px;
+            bottom: -8px;
             right: 20px;
             width: 0;
             height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 10px solid var(--accent);
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid var(--primary);
         }
 
-        /* Stats optimizado */
+        .reputation-tooltip p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .reputation-tooltip strong {
+            color: var(--primary);
+        }
+
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -447,7 +458,6 @@
             margin-top: 0.5rem;
         }
 
-        /* Section */
         .section {
             max-width: 1400px;
             margin: 6rem auto;
@@ -482,7 +492,6 @@
             letter-spacing: 2px;
         }
 
-        /* Projects optimizado */
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
@@ -563,7 +572,102 @@
             font-size: clamp(0.85rem, 2vw, 0.95rem);
         }
 
-        /* Research timeline optimizado */
+        /* Writeups */
+        .writeups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+            gap: clamp(1rem, 2vw, 1.5rem);
+        }
+
+        .writeup-card {
+            background: rgba(10, 14, 39, 0.7);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .writeup-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--secondary);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .writeup-category {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(0, 212, 255, 0.15);
+            border: 1px solid var(--secondary);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            color: var(--secondary);
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .writeup-title {
+            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .writeup-difficulty {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 0.75rem;
+        }
+
+        .difficulty-easy { color: #27c93f; }
+        .difficulty-medium { color: #ffbd2e; }
+        .difficulty-hard { color: #ff5f56; }
+
+        /* Tools */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+            gap: clamp(1.5rem, 3vw, 2rem);
+        }
+
+        .tool-card {
+            background: rgba(10, 14, 39, 0.8);
+            border: 1px solid rgba(255, 0, 110, 0.3);
+            border-radius: 12px;
+            padding: clamp(1.5rem, 3vw, 2rem);
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 15px 40px rgba(255, 0, 110, 0.25);
+        }
+
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .tool-title {
+            font-size: clamp(1.3rem, 3vw, 1.5rem);
+            color: var(--accent);
+        }
+
+        .tool-version {
+            padding: 0.25rem 0.75rem;
+            background: rgba(255, 0, 110, 0.15);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            color: var(--accent);
+            white-space: nowrap;
+        }
+
         .research-timeline {
             position: relative;
             padding-left: clamp(2rem, 4vw, 3rem);
@@ -639,7 +743,6 @@
             font-size: clamp(0.85rem, 2vw, 0.95rem);
         }
 
-        /* Skills optimizado */
         .skills-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -683,7 +786,6 @@
             font-size: clamp(0.8rem, 2vw, 0.9rem);
         }
 
-        /* Footer */
         footer {
             background: rgba(10, 14, 39, 0.95);
             border-top: 2px solid var(--primary);
@@ -724,7 +826,6 @@
             transform: translateY(-3px);
         }
 
-        /* Scroll progress */
         .scroll-progress {
             position: fixed;
             top: 0;
@@ -735,7 +836,6 @@
             box-shadow: 0 0 10px var(--glow);
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .hero {
                 padding: 6rem 1rem 3rem;
@@ -766,15 +866,14 @@
                 text-align: center;
             }
 
-            .respect-container {
+            .reputation-system {
                 bottom: 1rem;
                 right: 1rem;
             }
 
-            .respect-btn {
-                width: 60px;
-                height: 60px;
-                font-size: 1.7rem;
+            .reputation-btn {
+                font-size: 0.75rem;
+                padding: 0.6rem 1rem;
             }
 
             nav a::before {
@@ -797,121 +896,30 @@
                 text-align: center;
             }
         }
-
-        /* Optimización de rendimiento */
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
     </style>
 </head>
 <body>
     <canvas id="grid-canvas"></canvas>
     <div class="scroll-progress" id="scrollProgress"></div>
 
-    <header id="header">
+    <header>
         <nav>
             <div class="logo">QUADRATURBO</div>
             <ul>
                 <li><a href="#projects">PROJECTS</a></li>
+                <li><a href="#writeups">WRITEUPS</a></li>
+                <li><a href="#tools">TOOLS</a></li>
                 <li><a href="#research">RESEARCH</a></li>
                 <li><a href="#skills">SKILLS</a></li>
-                <li><a href="#about">ABOUT</a></li>
             </ul>
         </nav>
     </header>
 
-    <!-- Botón de respeto -->
-    <div class="respect-container">
-        <div class="respect-popup" id="respectPopup">¡Gracias por el respeto! 🔥</div>
-        <button class="respect-btn" id="respectBtn" aria-label="Dar respeto">
-            🤘
-            <span class="respect-counter" id="respectCounter">0</span>
-        </button>
-    </div>
-
-    <section class="hero">
-        <div class="hero-content">
-            <div class="hero-subtitle">Security Researcher</div>
-            <h1 class="hero-title">CYBER_SECURITY</h1>
-            <p class="hero-description">
-                Penetration Testing • Vulnerability Analysis • Offensive Tool Development
-            </p>
-
-            <div class="terminal-window">
-                <div class="terminal-header">
-                    <div class="terminal-btn"></div>
-                    <div class="terminal-btn"></div>
-                    <div class="terminal-btn"></div>
-                </div>
-                <div class="terminal-body">
-                    <div class="command-line">
-                        <span class="prompt">root@quadraturbo:~#</span>
-                        <span class="command">cat /etc/mission</span>
-                    </div>
-                    <div class="command-line">
-                        <span class="output">Exploring vulnerabilities in modern systems</span>
-                    </div>
-                    <div class="command-line">
-                        <span class="prompt">root@quadraturbo:~#</span>
-                        <span class="command">./build_future --offensive</span>
-                    </div>
-                    <div class="command-line">
-                        <span class="output">[✓] Building next-generation security tools...</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cta-container">
-                <a href="#projects" class="neon-btn neon-btn-primary">EXPLORE WORK</a>
-                <a href="https://github.com/quadraturbo" target="_blank" class="neon-btn neon-btn-secondary">GITHUB →</a>
-            </div>
+    <div class="reputation-system">
+        <div class="reputation-tooltip" id="reputationTooltip">
+            <p><strong>Global Reputation:</strong> +1</p>
+            <p>Thanks for the support!</p>
         </div>
-    </section>
-
-    <div class="stats">
-        <div class="stat-card">
-            <div class="stat-number">0</div>
-            <div class="stat-label">Active Projects</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">0</div>
-            <div class="stat-label">Research Papers</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">0</div>
-            <div class="stat-label">CVEs Found</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">0</div>
-            <div class="stat-label">Tools Released</div>
-        </div>
-    </div>
-
-    <section class="section" id="projects">
-        <h2 class="section-title"><span>Security Projects</span></h2>
-        <p class="section-subtitle">Offensive Tools & Research</p>
-
-        <div class="projects-grid">
-            <div class="project-card">
-                <div class="project-status">
-                    <div class="status-pulse"></div>
-                    <span>In Development</span>
-                </div>
-                <h3 class="project-title">Coming Soon...</h3>
-                <div class="project-tags">
-                    <span class="tag">Python</span>
-                    <span class="tag">Pentesting</span>
-                    <span class="tag">Network</span>
-                </div>
-                <p class="project-description">
-                    Offensive security tools and penetration testing frameworks currently under development.
-                </p>
-            </div>
-
-            <div class="project-card">
+        <button class="reputation-btn" id="reputationBtn" aria-label="Add reputation">
+            <span class="reputation-icon">◢◣</span>
+            <span>REP:<span class="reputation-count" id="
