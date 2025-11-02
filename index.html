@@ -1,70 +1,524 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi Página GitHub Pages</title>
-  <style>
-    /* Reset básico */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuadraTurbo | Cybersecurity Portfolio</title>
+    <style>
+        /* Variables CSS para tema consistente */
+        :root {
+            --primary: #00ff88;
+            --secondary: #00d4ff;
+            --dark: #0a0e27;
+            --darker: #050814;
+            --accent: #ff006e;
+            --text: #e8e8e8;
+            --text-dim: #a0a0a0;
+        }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #1e1e2f;
-      color: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
-      padding: 20px;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 20px;
-      color: #00e0ff;
-      text-shadow: 2px 2px #00000050;
-    }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--darker);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-    p {
-      font-size: 1.2rem;
-      margin-bottom: 30px;
-      line-height: 1.5;
-    }
+        /* Fondo animado con gradiente */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255, 0, 110, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: gradientShift 15s ease infinite;
+        }
 
-    a.button {
-      text-decoration: none;
-      background: #ff3c3c;
-      color: #fff;
-      padding: 12px 25px;
-      border-radius: 8px;
-      transition: 0.3s;
-      font-weight: bold;
-    }
+        @keyframes gradientShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
 
-    a.button:hover {
-      background: #ff1a1a;
-      transform: scale(1.05);
-    }
+        /* Header sticky con efecto glassmorphism */
+        header {
+            position: sticky;
+            top: 0;
+            background: rgba(10, 14, 39, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+            padding: 1.5rem 0;
+            z-index: 1000;
+        }
 
-    footer {
-      position: absolute;
-      bottom: 10px;
-      font-size: 0.9rem;
-      color: #aaaaaa;
-    }
-  </style>
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* Sección hero con animación */
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 8rem 2rem 6rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            animation: fadeInUp 0.8s ease 0.2s backwards;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.4s backwards;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+            border: 2px solid transparent;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--darker);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: var(--darker);
+        }
+
+        /* Contenedor de secciones */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            margin-bottom: 8rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .section-header p {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        /* Grid de proyectos */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(0, 212, 255, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
+        }
+
+        .project-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            position: relative;
+        }
+
+        .project-card .tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .tag {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .project-card p {
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .project-link {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .project-link:hover {
+            gap: 0.75rem;
+        }
+
+        /* Grid de research */
+        .research-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .research-item {
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 3px solid var(--secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .research-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(5px);
+        }
+
+        .research-item h3 {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .research-item .date {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(10, 14, 39, 0.5);
+            border-top: 1px solid rgba(0, 255, 136, 0.1);
+            padding: 3rem 0;
+            margin-top: 6rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .social-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav ul {
+                gap: 1rem;
+            }
+
+            .hero {
+                padding: 4rem 2rem 3rem;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
+    <header>
+        <nav>
+            <div class="logo">QuadraTurbo</div>
+            <ul>
+                <li><a href="#projects">Proyectos</a></li>
+                <li><a href="#research">Research</a></li>
+                <li><a href="#about">Sobre mí</a></li>
+                <li><a href="#contact">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
 
-  <h1>¡Hola mundo!</h1>
-  <p>Esta es mi primera página en GitHub Pages.<br>
-  </p>
-  <a class="button" href="https://github.com/quadraturbo" target="_blank">Mi GitHub</a>
+    <main>
+        <section class="hero">
+            <h1>Cybersecurity & Research</h1>
+            <p>Explorando vulnerabilidades, documentando investigaciones y construyendo herramientas de seguridad de última generación.</p>
+            <div class="cta-buttons">
+                <a href="#projects" class="btn btn-primary">Ver Proyectos</a>
+                <a href="https://github.com/quadraturbo" class="btn btn-secondary" target="_blank">GitHub</a>
+            </div>
+        </section>
 
-  <footer>© 2025 quadraturbo</footer>
+        <div class="container">
+            <section id="projects">
+                <div class="section-header">
+                    <h2>Proyectos de Ciberseguridad</h2>
+                    <p>Herramientas, exploits y proyectos de seguridad ofensiva y defensiva</p>
+                </div>
+                <div class="projects-grid">
+                    <article class="project-card">
+                        <h3>Proyecto Ejemplo 1</h3>
+                        <div class="tags">
+                            <span class="tag">Python</span>
+                            <span class="tag">Pentesting</span>
+                            <span class="tag">Network</span>
+                        </div>
+                        <p>Herramienta de análisis de red para identificación de servicios y puertos abiertos con técnicas de evasión avanzadas.</p>
+                        <a href="#" class="project-link">Ver detalles →</a>
+                    </article>
 
+                    <article class="project-card">
+                        <h3>Proyecto Ejemplo 2</h3>
+                        <div class="tags">
+                            <span class="tag">Web Security</span>
+                            <span class="tag">OWASP</span>
+                        </div>
+                        <p>Scanner automatizado para detección de vulnerabilidades comunes en aplicaciones web modernas.</p>
+                        <a href="#" class="project-link">Ver detalles →</a>
+                    </article>
+
+                    <article class="project-card">
+                        <h3>Proyecto Ejemplo 3</h3>
+                        <div class="tags">
+                            <span class="tag">Malware Analysis</span>
+                            <span class="tag">Reverse Engineering</span>
+                        </div>
+                        <p>Framework para análisis estático y dinámico de binarios con sandboxing integrado.</p>
+                        <a href="#" class="project-link">Ver detalles →</a>
+                    </article>
+                </div>
+            </section>
+
+            <section id="research">
+                <div class="section-header">
+                    <h2>Research & Documentación</h2>
+                    <p>Investigaciones, writeups y análisis técnicos profundos</p>
+                </div>
+                <div class="research-grid">
+                    <article class="research-item">
+                        <h3>CVE Analysis: Ejemplo Crítico</h3>
+                        <div class="date">Octubre 2024</div>
+                        <p>Análisis detallado de vulnerabilidad crítica en sistemas modernos, incluyendo PoC y vectores de mitigación.</p>
+                    </article>
+
+                    <article class="research-item">
+                        <h3>Técnicas de Evasión AV/EDR</h3>
+                        <div class="date">Septiembre 2024</div>
+                        <p>Investigación sobre técnicas actuales de bypass de soluciones de seguridad endpoint.</p>
+                    </article>
+
+                    <article class="research-item">
+                        <h3>Memory Corruption Patterns</h3>
+                        <div class="date">Agosto 2024</div>
+                        <p>Estudio de patrones comunes en vulnerabilidades de corrupción de memoria en aplicaciones nativas.</p>
+                    </article>
+
+                    <article class="research-item">
+                        <h3>Writeup: CTF Championship</h3>
+                        <div class="date">Julio 2024</div>
+                        <p>Soluciones detalladas de retos de criptografía, pwn y reversing de competición internacional.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section id="about">
+                <div class="section-header">
+                    <h2>Sobre mí</h2>
+                </div>
+                <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                    <p style="font-size: 1.1rem; color: var(--text-dim); line-height: 1.8;">
+                        Investigador de seguridad especializado en pentesting, análisis de vulnerabilidades y desarrollo de herramientas ofensivas. 
+                        Enfocado en la investigación continua de nuevas técnicas de ataque y defensa, con especial interés en seguridad de aplicaciones 
+                        y sistemas operativos modernos.
+                    </p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer id="contact">
+        <div class="footer-content">
+            <div>
+                <p>&copy; 2024 QuadraTurbo. Cybersecurity Research.</p>
+            </div>
+            <div class="social-links">
+                <a href="https://github.com/quadraturbo" target="_blank">GitHub</a>
+                <a href="https://twitter.com/quadraturbo" target="_blank">Twitter</a>
+                <a href="https://linkedin.com/in/quadraturbo" target="_blank">LinkedIn</a>
+                <a href="mailto:contact@quadraturbo.dev">Email</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
