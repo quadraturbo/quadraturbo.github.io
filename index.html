@@ -2,16 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport optimizado para móviles: previene zoom indeseado y asegura escala correcta -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Quadraturbo | Red Team & Cybersecurity</title>
 
-    <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- Iconos: RemixIcon -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
     <style>
@@ -24,8 +20,6 @@
             --secondary: #0a84ff; 
             --text-main: #f5f5f7;
             --text-muted: #86868b;
-
-            /* Colores Tech */
             --linux-color: #34c759;
             --python-color: #3776ab;
             --cisco-color: #00b1f2;
@@ -43,11 +37,9 @@
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             line-height: 1.5;
-            /* Espacio extra abajo para que la nav móvil no tape contenido */
             padding-bottom: 100px;
         }
 
-        /* --- FONDO MATRIX SUTIL --- */
         #matrix-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1; opacity: 0.06; pointer-events: none;
@@ -55,7 +47,6 @@
             -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
         }
 
-        /* --- NAVEGACIÓN --- */
         .nav-wrapper {
             position: fixed; top: 20px; left: 0; right: 0; z-index: 1000;
             display: flex; justify-content: center; padding: 0 20px;
@@ -83,7 +74,6 @@
 
         main { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
-        /* --- HERO SECTION --- */
         .hero { text-align: center; padding: 9rem 0 5rem; }
 
         .hero-tag {
@@ -105,7 +95,6 @@
             max-width: 600px; margin: 0 auto 3rem; font-weight: 400; 
         }
 
-        /* --- TERMINAL 3D --- */
         .terminal-stage { perspective: 2000px; margin-bottom: 6rem; padding: 0 10px; }
         .terminal-window {
             background: rgba(15, 15, 16, 0.9);
@@ -131,7 +120,6 @@
             margin-bottom: 2.5rem; text-align: center; letter-spacing: -0.03em; color: #f5f5f7;
         }
 
-        /* --- TARJETAS CON EFECTO SPOTLIGHT (Base) --- */
         .spotlight-card {
             background: var(--surface);
             border-radius: 20px;
@@ -140,10 +128,9 @@
             border: 1px solid var(--border);
             transition: transform 0.2s ease, background-color 0.2s;
             cursor: default;
-            -webkit-mask-image: -webkit-radial-gradient(white, black); /* Fix Safari Radius */
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
         }
 
-        /* --- GRID DE ARSENAL/SKILLS --- */
         .tech-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 16px; margin-bottom: 6rem;
@@ -156,7 +143,6 @@
         .tech-icon { font-size: 2.2rem; color: var(--text-muted); transition: 0.3s; line-height: 1; }
         .tech-name { font-size: 0.85rem; font-weight: 500; color: var(--text-muted); text-align: center; }
 
-        /* --- GRID DE PROYECTOS --- */
         .bento-grid { 
             display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
             gap: 20px; margin-bottom: 6rem; 
@@ -178,7 +164,124 @@
             margin-top: auto;
         }
 
-        /* --- SECCIÓN ABOUT --- */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 6rem;
+        }
+        .service-card {
+            padding: 2.5rem 2rem;
+            position: relative;
+            z-index: 3;
+        }
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: rgba(50, 215, 75, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        .service-icon i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        .service-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        .service-card p {
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 1.2rem;
+        }
+        .service-features {
+            list-style: none;
+            padding: 0;
+        }
+        .service-features li {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .service-features li:last-child {
+            border-bottom: none;
+        }
+        .service-features li::before {
+            content: "→";
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .writeups-grid {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 6rem;
+        }
+        .writeup-card {
+            padding: 1.8rem 2rem;
+            position: relative;
+            z-index: 3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+        .writeup-info {
+            flex: 1;
+        }
+        .writeup-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+        .writeup-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono';
+        }
+        .writeup-difficulty {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 100px;
+            letter-spacing: 0.05em;
+        }
+        .difficulty-easy {
+            background: rgba(52, 199, 89, 0.1);
+            color: #34c759;
+        }
+        .difficulty-medium {
+            background: rgba(255, 189, 46, 0.1);
+            color: #ffbd2e;
+        }
+        .difficulty-hard {
+            background: rgba(255, 59, 48, 0.1);
+            color: #ff3b30;
+        }
+        .writeup-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .writeup-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .writeup-arrow {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
         .about-card {
             display: flex; flex-direction: column; align-items: center; text-align: center;
             background: linear-gradient(180deg, rgba(30,30,32,0.4) 0%, rgba(0,0,0,0) 100%);
@@ -188,7 +291,6 @@
         .about-card h2 { font-size: 2rem; margin-bottom: 1rem; }
         .about-card p { max-width: 700px; color: var(--text-muted); line-height: 1.8; font-size: 1.1rem; }
 
-        /* --- BOTÓN RESPETO (Centrado arreglado) --- */
         .respect-container {
             display: flex; justify-content: center; align-items: center;
             width: 100%; margin-bottom: 6rem;
@@ -206,21 +308,29 @@
             background: rgba(50, 215, 75, 0.05);
         }
 
-        /* --- FOOTER (Centrado arreglado) --- */
         footer {
-            display: flex; justify-content: center; align-items: center;
-            padding: 3rem 0; color: var(--text-muted);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 3rem 2rem; color: var(--text-muted);
             font-size: 0.85rem; border-top: 1px solid var(--border);
-            width: 100%; text-align: center;
+            max-width: 1100px; margin: 0 auto; flex-wrap: wrap; gap: 1rem;
+        }
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .social-links a {
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .social-links a:hover {
+            color: var(--primary);
+            transform: translateY(-3px);
         }
 
-        /* =========================================
-           MEDIA QUERIES & INTERACTIVIDAD
-           ========================================= */
-
-        /* A. ESCRITORIO (Hover y Mouse disponibles) */
         @media (hover: hover) and (pointer: fine) {
-            /* Efecto Spotlight */
             .spotlight-card::before {
                 content: ""; position: absolute; inset: 0;
                 background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255,255,255,0.04), transparent 40%);
@@ -237,7 +347,6 @@
             .spotlight-card:hover::before, .spotlight-card:hover::after { opacity: 1; }
             .spotlight-card:hover { transform: scale(1.01); }
             
-            /* Colores Tech en Hover */
             .linux:hover .tech-icon { color: var(--linux-color); }
             .python:hover .tech-icon { color: var(--python-color); }
             .cisco:hover .tech-icon { color: var(--cisco-color); }
@@ -246,11 +355,14 @@
             .forensics:hover .tech-icon { color: var(--forensics-color); }
             .spotlight-card:hover .tech-name { color: #fff; }
             .spotlight-card:hover .tech-icon { transform: scale(1.1); }
+            
+            .writeup-card:hover .writeup-arrow {
+                transform: translateX(8px);
+                color: var(--primary);
+            }
         }
 
-        /* B. MÓVIL (Touch) */
         @media (hover: none), (max-width: 768px) {
-            /* Navbar estilo iOS abajo */
             .nav-wrapper {
                 top: auto; bottom: 20px; padding: 0 10px;
                 padding-bottom: env(safe-area-inset-bottom, 20px);
@@ -264,17 +376,27 @@
             .logo { display: none; }
             nav a { font-size: 0.95rem; color: #fff; opacity: 0.7; padding: 8px; }
 
-            /* Ajustes Layout Móvil */
             .hero { padding-top: 4rem; }
-            .terminal-window { transform: none !important; margin: 0 5px; } /* Sin 3D */
+            .terminal-window { transform: none !important; margin: 0 5px; }
             
             .tech-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .bento-grid { grid-template-columns: 1fr; }
+            .services-grid { grid-template-columns: 1fr; }
 
-            /* Feedback táctil en lugar de hover */
             .spotlight-card { background: #0f0f10; border: 1px solid rgba(255,255,255,0.15); }
             .spotlight-card:active { transform: scale(0.98); background: #1a1a1c; border-color: var(--primary); }
             .tech-icon { color: #fff; opacity: 0.8; }
+            
+            .writeup-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .writeup-arrow {
+                align-self: flex-end;
+            }
+            .social-links { display: none; }
+            footer { justify-content: center; text-align: center; }
         }
     </style>
 </head>
@@ -282,18 +404,17 @@
 
 <canvas id="matrix-canvas"></canvas>
 
-<!-- NAVEGACIÓN -->
 <div class="nav-wrapper">
     <nav>
         <span class="logo">quadraturbo_</span>
         <a href="#projects">Proyectos</a>
-        <a href="#stack">Stack</a>
+        <a href="#services">Servicios</a>
+        <a href="#writeups">Writeups</a>
         <a href="#about">Bio</a>
     </nav>
 </div>
 
 <main>
-    <!-- HERO SECTION -->
     <section class="hero">
         <div class="hero-tag">RED TEAM SPECIALIST</div>
         <h1>TurboEye.<br>We expect the unexpected.</h1>
@@ -317,7 +438,6 @@
         </div>
     </section>
 
-    <!-- STACK / SKILLS -->
     <section id="stack">
         <h2 class="section-title">Arsenal Técnico</h2>
         <div class="tech-grid">
@@ -360,7 +480,6 @@
         </div>
     </section>
 
-    <!-- PROYECTOS -->
     <section id="projects">
         <h2 class="section-title">Proyectos</h2>
         <div class="bento-grid">
@@ -399,17 +518,109 @@
         </div>
     </section>
 
-    <!-- ABOUT -->
+    <section id="services">
+        <h2 class="section-title">Servicios Profesionales</h2>
+        <div class="services-grid">
+            <article class="spotlight-card">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="ri-shield-check-line"></i>
+                    </div>
+                    <h3>Auditoría de Seguridad</h3>
+                    <p>Evaluación integral de la postura de seguridad de tu organización, identificando vulnerabilidades antes que los atacantes.</p>
+                    <ul class="service-features">
+                        <li>Pentesting de aplicaciones web y móviles</li>
+                        <li>Auditoría de infraestructura de red</li>
+                        <li>Análisis de configuraciones</li>
+                        <li>Revisión de código seguro</li>
+                    </ul>
+                </div>
+            </article>
+
+            <article class="spotlight-card">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="ri-building-line"></i>
+                    </div>
+                    <h3>Securización Física</h3>
+                    <p>Evaluación presencial de controles de acceso físico, ingeniería social y protocolos de seguridad en instalaciones.</p>
+                    <ul class="service-features">
+                        <li>Physical penetration testing</li>
+                        <li>Evaluación de controles de acceso</li>
+                        <li>Social engineering assessments</li>
+                        <li>Análisis de procedimientos internos</li>
+                    </ul>
+                </div>
+            </article>
+
+            <article class="spotlight-card">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="ri-cloud-line"></i>
+                    </div>
+                    <h3>Auditoría Remota</h3>
+                    <p>Evaluación completa de seguridad sin necesidad de presencia física, ideal para infraestructuras distribuidas y cloud.</p>
+                    <ul class="service-features">
+                        <li>Vulnerability assessments remotos</li>
+                        <li>Análisis de configuración cloud</li>
+                        <li>Red team operations</li>
+                        <li>Informes ejecutivos detallados</li>
+                    </ul>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section id="writeups">
+        <h2 class="section-title">Writeups & Research</h2>
+        <div class="writeups-grid">
+            <article class="spotlight-card writeup-card">
+                <div class="writeup-info">
+                    <div class="writeup-meta">
+                        <span class="writeup-date">2025-01-20</span>
+                        <span class="writeup-difficulty difficulty-medium">MEDIUM</span>
+                    </div>
+                    <h3>Próximamente...</h3>
+                    <p>Análisis de vulnerabilidades y explotación de máquinas CTF.</p>
+                </div>
+                <i class="ri-arrow-right-line writeup-arrow"></i>
+            </article>
+
+            <article class="spotlight-card writeup-card">
+                <div class="writeup-info">
+                    <div class="writeup-meta">
+                        <span class="writeup-date">2025-01-15</span>
+                        <span class="writeup-difficulty difficulty-hard">HARD</span>
+                    </div>
+                    <h3>Próximamente...</h3>
+                    <p>Writeups de auditorías de seguridad y red team operations.</p>
+                </div>
+                <i class="ri-arrow-right-line writeup-arrow"></i>
+            </article>
+
+            <article class="spotlight-card writeup-card">
+                <div class="writeup-info">
+                    <div class="writeup-meta">
+                        <span class="writeup-date">2025-01-10</span>
+                        <span class="writeup-difficulty difficulty-easy">EASY</span>
+                    </div>
+                    <h3>Próximamente...</h3>
+                    <p>Tutoriales de herramientas y técnicas de pentesting.</p>
+                </div>
+                <i class="ri-arrow-right-line writeup-arrow"></i>
+            </article>
+        </div>
+    </section>
+
     <section id="about" class="about-card">
         <h2>Sobre mí</h2>
         <p>
             Soy estudiante de Ciberseguridad centrado en <strong>Red Team</strong> y <strong>Seguridad en Redes</strong>.
-                Mi pasión reside en comprender cómo funcionan los sistemas para encontrar formas creativas de securizarlos (o romperlos). 
-                Me dedico a la configuración avanzada de infraestructuras, auditoría de seguridad y el desarrollo de herramientas.
+            Mi pasión reside en comprender cómo funcionan los sistemas para encontrar formas creativas de securizarlos (o romperlos). 
+            Me dedico a la configuración avanzada de infraestructuras, auditoría de seguridad y el desarrollo de herramientas.
         </p>
     </section>
 
-    <!-- BOTÓN RESPETO -->
     <div class="respect-container">
         <button id="respect-btn">
             <i class="ri-flashlight-line"></i> Respeto <span style="opacity: 0.3; margin: 0 8px;">|</span> <span id="respect-count">0</span>
@@ -419,11 +630,17 @@
 </main>
 
 <footer>
-    <p>&copy; 2025 Quadraturbo. Code & Security.</p>
+    <div>
+        <p>&copy; 2026 Quadraturbo. Code & Security.</p>
+    </div>
+    <div class="social-links">
+        <a href="https://github.com/quadraturbo" target="_blank" title="GitHub">
+            <i class="ri-github-fill"></i>
+        </a>
+    </div>
 </footer>
 
 <script>
-// --- 1. MATRIX EFFECT (Optimizado) ---
 const canvas = document.getElementById('matrix-canvas');
 const ctx = canvas.getContext('2d');
 function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -448,9 +665,7 @@ function draw() {
 }
 setInterval(draw, 60);
 
-// --- 2. EFECTOS DESKTOP  ---
 if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-    // 3D Tilt para Terminal
     const terminal = document.querySelector('.terminal-window');
     document.addEventListener('mousemove', (e) => {
         const x = (window.innerWidth / 2 - e.pageX) / 60;
@@ -458,7 +673,6 @@ if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
         if(terminal) terminal.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
     });
 
-    // Spotlight para Cards
     const cards = document.querySelectorAll('.spotlight-card');
     document.addEventListener('mousemove', (e) => {
         cards.forEach(card => {
@@ -471,7 +685,6 @@ if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
     });
 }
 
-// --- 3. CONTADOR DE RESPETO (API) ---
 const respectBtn = document.getElementById('respect-btn');
 const respectCounter = document.getElementById('respect-count');
 const NAMESPACE = 'quadraturbo-final-fix'; 
