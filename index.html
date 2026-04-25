@@ -401,6 +401,10 @@
     </style>
 </head>
 <body>
+<div id="android-banner"></div>
+
+<div id="android-banner"></div>
+<script src="https://keepandroidopen.org/banner.js?lang=es&size=mini&id=android-banner"></script>
 
 <canvas id="matrix-canvas"></canvas>
 
@@ -708,6 +712,18 @@ async function incrementRespect() {
 }
 respectBtn.addEventListener('click', incrementRespect);
 fetchRespect();
+
+function adjustNav() {
+    const banner = document.getElementById('android-banner');
+    const navWrapper = document.querySelector('.nav-wrapper');
+    if (!banner || !navWrapper) return;
+    const h = banner.offsetHeight;
+    if (window.innerWidth > 768) {
+        navWrapper.style.top = (h + 20) + 'px';
+    }
+}
+setTimeout(adjustNav, 200); // espera a que cargue el banner
+window.addEventListener('resize', adjustNav);
 </script>
 
 </body>
