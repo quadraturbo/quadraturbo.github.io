@@ -221,65 +221,52 @@
         .about-card h2 { font-size: 2rem; margin-bottom: 1rem; }
         .about-card p { max-width: 700px; color: var(--text-muted); line-height: 1.8; font-size: 1.1rem; }
 
-        /* ── FOSS TRANSMISSION TERMINAL ── */
+        /* ── FOSS PILL ── */
         .foss-container {
-            max-width: 720px;
+            max-width: 640px;
             margin: 0 auto 6rem;
-            padding: 0 10px;
+            padding: 0 20px;
         }
 
-        .foss-terminal {
-            background: rgba(15, 15, 16, 0.9);
-            backdrop-filter: blur(16px);
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.5);
-            font-family: 'JetBrains Mono', monospace;
-            overflow: hidden;
-        }
-
-        .foss-header {
-            padding: 12px 16px;
-            display: flex; align-items: center; gap: 12px;
+        .foss-pill {
             background: rgba(255,255,255,0.03);
-            border-bottom: 1px solid rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 999px;
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        .foss-header .dots { display: flex; gap: 8px; }
-        .foss-title {
-            font-size: 0.75rem; color: var(--text-muted);
-            letter-spacing: 0.05em; flex: 1; text-align: center;
-        }
-        .foss-counter {
-            font-size: 0.65rem;
-            color: rgba(255,255,255,0.15);
-            letter-spacing: 0.05em;
+        .foss-pill:hover {
+            border-color: rgba(50,215,75,0.2);
+            box-shadow: 0 0 40px rgba(50,215,75,0.05);
         }
 
-        .foss-body { padding: 20px 24px 24px; }
-
-        .foss-label {
-            font-size: 0.7rem; color: var(--text-muted);
-            letter-spacing: 0.1em; margin-bottom: 14px;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .foss-label::before {
-            content: '';
-            display: inline-block; width: 6px; height: 6px;
-            border-radius: 50%; background: var(--primary);
+        .foss-dot {
+            flex-shrink: 0;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--primary);
             animation: pulse-dot 2s ease-in-out infinite;
         }
         @keyframes pulse-dot {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.15; }
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(50,215,75,0.4); }
+            50% { opacity: 0.3; box-shadow: 0 0 0 5px rgba(50,215,75,0); }
         }
 
         .foss-output {
-            font-size: 0.9rem; color: #f0f0f0;
-            line-height: 1.75; min-height: 3.5rem;
-            margin-bottom: 20px;
+            flex: 1;
+            font-size: 0.85rem;
+            color: #c8c8c8;
+            line-height: 1.5;
+            min-height: 1.3em;
+            font-family: 'JetBrains Mono', monospace;
         }
         .foss-cursor {
-            display: inline-block; width: 2px; height: 1em;
+            display: inline-block; width: 2px; height: 0.9em;
             background: var(--primary); margin-left: 2px;
             vertical-align: text-bottom;
             animation: cur-blink 1s step-end infinite;
@@ -289,44 +276,179 @@
             50% { opacity: 0; }
         }
 
-        .foss-footer {
-            display: flex; align-items: center; justify-content: space-between;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            padding-top: 16px; gap: 1rem; flex-wrap: wrap;
+        .foss-pill-right {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        .foss-source { font-size: 0.7rem; color: var(--text-muted); }
-        .foss-source a { color: var(--secondary); text-decoration: none; transition: color 0.2s; }
-        .foss-source a:hover { color: #fff; }
-
+        .foss-counter {
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.12);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
         #foss-next {
             background: transparent;
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-muted);
-            padding: 8px 18px; border-radius: 100px;
-            font-size: 0.75rem; font-weight: 600;
-            font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 0.05em; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.25);
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            font-size: 1rem;
+            cursor: pointer;
             transition: all 0.2s;
-            display: flex; align-items: center; gap: 6px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
         }
         #foss-next:hover {
-            border-color: var(--primary); color: var(--primary);
-            background: rgba(50, 215, 75, 0.05);
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(50,215,75,0.06);
         }
-        #foss-next:active { transform: scale(0.95); }
+        #foss-next:active { transform: scale(0.9); }
 
-        footer {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 3rem 2rem; color: var(--text-muted);
-            font-size: 0.85rem; border-top: 1px solid var(--border);
-            max-width: 1100px; margin: 0 auto; flex-wrap: wrap; gap: 1rem;
+        @media (max-width: 768px) {
+            .foss-pill { border-radius: 20px; padding: 16px 20px; gap: 14px; }
+            .foss-counter { display: none; }
         }
-        .social-links { display: flex; gap: 1rem; align-items: center; }
-        .social-links a {
-            color: var(--text-muted); font-size: 1.3rem;
-            transition: all 0.3s ease; text-decoration: none;
+
+        /* ── TRIBAL FOOTER ── */
+        .tribal-footer {
+            position: relative;
+            margin-top: 2rem;
+            overflow: hidden;
+            background: #000;
         }
-        .social-links a:hover { color: var(--primary); transform: translateY(-3px); }
+
+        .tribal-footer::before {
+            content: '';
+            display: block;
+            height: 1px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(50,215,75,0.15) 20%,
+                rgba(50,215,75,0.6) 50%,
+                rgba(50,215,75,0.15) 80%,
+                transparent 100%);
+        }
+
+        .tribal-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px 3rem;
+            position: relative;
+        }
+
+        /* top tribal SVG band */
+        .tribal-band {
+            width: 100%;
+            display: block;
+            margin-bottom: 2.5rem;
+            opacity: 0.18;
+        }
+
+        .tribal-main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1.6rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tribal-headline {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: clamp(1.3rem, 4vw, 2.2rem);
+            letter-spacing: -0.01em;
+            line-height: 1.15;
+            position: relative;
+            display: inline-block;
+        }
+
+        .tribal-headline .word-hack {
+            color: #fff;
+            position: relative;
+        }
+        .tribal-headline .word-planet {
+            color: var(--primary);
+            text-shadow: 0 0 30px rgba(50,215,75,0.4);
+        }
+        .tribal-headline .sep {
+            color: rgba(50,215,75,0.35);
+            margin: 0 0.15em;
+            font-size: 0.85em;
+        }
+        .tribal-headline .word-help {
+            color: var(--text-muted);
+        }
+        .tribal-headline .word-helpless {
+            color: #fff;
+        }
+
+        /* animated scratch lines behind headline */
+        .tribal-headline::before,
+        .tribal-headline::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            height: 1px;
+            width: 60px;
+            background: linear-gradient(90deg, transparent, rgba(50,215,75,0.4));
+            transform: translateY(-50%);
+        }
+        .tribal-headline::before { right: 100%; margin-right: 16px; }
+        .tribal-headline::after  { left: 100%; margin-left: 16px; transform: translateY(-50%) scaleX(-1); }
+
+        .tribal-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.12);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .tribal-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .tribal-copy {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.12);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        .tribal-links {
+            display: flex;
+            gap: 1.2rem;
+            align-items: center;
+        }
+        .tribal-links a {
+            color: rgba(255,255,255,0.2);
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+        .tribal-links a:hover {
+            color: var(--primary);
+            filter: drop-shadow(0 0 6px rgba(50,215,75,0.5));
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .tribal-bottom { justify-content: center; text-align: center; }
+            .tribal-headline::before, .tribal-headline::after { display: none; }
+        }
 
         @media (hover: hover) and (pointer: fine) {
             .spotlight-card::before {
@@ -551,45 +673,90 @@
         </p>
     </section>
 
-    <!-- FOSS transmission widget -->
+    <!-- FOSS pill -->
     <div class="foss-container">
-        <div class="foss-terminal">
-            <div class="foss-header">
-                <div class="dots">
-                    <div class="dot" style="background:#FF5F56"></div>
-                    <div class="dot" style="background:#FFBD2E"></div>
-                    <div class="dot" style="background:#27C93F"></div>
-                </div>
-                <span class="foss-title">ST4Y</span>
+        <div class="foss-pill">
+            <div class="foss-dot"></div>
+            <div class="foss-output" id="foss-output"><span class="foss-cursor"></span></div>
+            <div class="foss-pill-right">
                 <span class="foss-counter" id="foss-counter">01 / 16</span>
-            </div>
-            <div class="foss-body">
-                <div class="foss-label">por un internet libre</div>
-                <div class="foss-output" id="foss-output"><span class="foss-cursor"></span></div>
-                <div class="foss-footer">
-                    <span class="foss-source">
-                        vía <a href="https://www.gnu.org/philosophy/free-sw.html" target="_blank" rel="noopener">gnu.org</a>
-                        &nbsp;·&nbsp;
-                        <a href="https://www.eff.org" target="_blank" rel="noopener">eff.org</a>
-                        &nbsp;·&nbsp;
-                        <a href="https://fsfe.org" target="_blank" rel="noopener">fsfe.org</a>
-                    </span>
-                    <button id="foss-next">
-                        <i class="ri-skip-right-line"></i> next_signal
-                    </button>
-                </div>
+                <button id="foss-next" title="siguiente señal">
+                    <i class="ri-skip-right-line"></i>
+                </button>
             </div>
         </div>
     </div>
 
 </main>
 
-<footer>
-    <p>&copy; 2026 Quadraturbo. Code & Security.</p>
-    <div class="social-links">
-        <a href="https://github.com/quadraturbo" target="_blank" title="GitHub">
-            <i class="ri-github-fill"></i>
-        </a>
+<footer class="tribal-footer">
+    <div class="tribal-inner">
+
+        <!-- Tribal SVG band -->
+        <svg class="tribal-band" viewBox="0 0 1100 40" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <g fill="#32d74b">
+                <!-- left wing -->
+                <polygon points="0,20 30,5 40,20 30,35"/>
+                <polygon points="35,20 70,2 85,20 70,38"/>
+                <polygon points="80,20 120,0 140,20 120,40"/>
+                <polygon points="135,20 155,10 165,20 155,30"/>
+                <polygon points="160,20 185,8 200,20 185,32"/>
+                <polygon points="195,20 230,5 250,20 230,35"/>
+                <polygon points="245,20 270,12 282,20 270,28"/>
+                <polygon points="278,20 305,8 320,20 305,32"/>
+                <polygon points="316,20 338,10 348,20 338,30"/>
+                <polygon points="344,20 365,6 380,20 365,34"/>
+                <polygon points="376,20 400,4 418,20 400,36"/>
+                <polygon points="414,20 435,11 446,20 435,29"/>
+                <polygon points="442,20 462,8 474,20 462,32"/>
+                <polygon points="470,20 490,5 504,20 490,35"/>
+
+                <!-- center diamond cluster -->
+                <polygon points="520,2 542,20 520,38 498,20"/>
+                <polygon points="542,10 558,20 542,30 526,20"/>
+                <polygon points="558,2 580,20 558,38 536,20"/>
+
+                <!-- right wing (mirror) -->
+                <polygon points="630,20 606,5 596,20 606,35"/>
+                <polygon points="625,20 590,2 575,20 590,38"/>
+                <polygon points="580,20 540,0 520,20 540,40"/>
+                <polygon points="685,20 665,10 655,20 665,30"/>
+                <polygon points="710,20 685,8 670,20 685,32"/>
+                <polygon points="745,20 720,5 705,20 720,35"/>
+                <polygon points="770,20 755,12 743,20 755,28"/>
+                <polygon points="800,20 775,8 760,20 775,32"/>
+                <polygon points="824,20 802,10 792,20 802,30"/>
+                <polygon points="850,20 825,6 810,20 825,34"/>
+                <polygon points="878,20 854,4 836,20 854,36"/>
+                <polygon points="902,20 881,11 870,20 881,29"/>
+                <polygon points="928,20 908,8 896,20 908,32"/>
+                <polygon points="960,20 940,5 926,20 940,35"/>
+                <polygon points="990,20 960,2 945,20 960,38"/>
+                <polygon points="1030,20 990,0 970,20 990,40"/>
+                <polygon points="1070,20 1050,10 1040,20 1050,30"/>
+                <polygon points="1100,20 1070,5 1055,20 1070,35"/>
+            </g>
+        </svg>
+
+        <div class="tribal-main">
+            <div class="tribal-headline">
+                <span class="word-hack">Hack the </span><span class="word-planet">Planet</span>
+                <span class="sep">⛧</span>
+                <span class="word-help">Help the </span><span class="word-helpless">Helpless</span><span class="word-helpless">.</span>
+            </div>
+
+            <div class="tribal-sub">root@quadraturbo &nbsp;·&nbsp; est. 2024 &nbsp;·&nbsp; foss forever</div>
+        </div>
+
+        <div class="tribal-bottom">
+            <span class="tribal-copy">&copy; 2026 Quadraturbo. Code &amp; Security.</span>
+            <div class="tribal-links">
+                <a href="https://github.com/quadraturbo" target="_blank" title="GitHub">
+                    <i class="ri-github-fill"></i>
+                </a>
+            </div>
+        </div>
+
     </div>
 </footer>
 
@@ -648,10 +815,12 @@ if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
     });
 }
 
+// ── FOSS transmission terminal ──
 const signals = [
     "El software libre no es cuestión de precio.\nEs cuestión de libertad.",
     '"Free software" means software that respects\nyour freedom and your community.',
     "Si no puedes auditar el código,\nno puedes confiar en él.",
+    "Tus datos son el producto.\nTú eres la mercancía.",
     "GNU/Linux: construido por miles de manos\nque nunca se conocerán entre sí.",
     "La privacidad no es para esconder algo.\nEs para proteger todo.",
     "Open source is not a feature.\nIt is the foundation.",
@@ -663,6 +832,7 @@ const signals = [
     "Cada backdoor instalada por un gobierno\nes una puerta abierta para todos.",
     "La vigilancia masiva no nos hace más seguros.\nNos hace más controlables.",
     "fork · audit · contribute.\nNo pidas permiso.",
+    "El conocimiento que no se comparte\nes poder que se concentra.",
 ];
 
 let idx = Math.floor(Math.random() * signals.length);
