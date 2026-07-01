@@ -82,6 +82,21 @@ body::after {
               radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.55), transparent 60%);
 }
 
+/* ── CURSOR HALO (page-wide) ── */
+#cursor-halo {
+  position: fixed;
+  top: 0; left: 0;
+  width: 620px; height: 620px;
+  margin-left: -310px; margin-top: -310px;
+  background: radial-gradient(circle, rgba(70,242,162,.10), rgba(70,242,162,.035) 45%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity .4s var(--ease);
+  will-change: transform;
+}
+#cursor-halo.active { opacity: 1; }
+
 /* ── BOOT SEQUENCE ── */
 #boot {
   position: fixed; inset: 0; z-index: 10000;
@@ -153,7 +168,7 @@ body::after {
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
 
 /* ── PAGE ── */
-.page { max-width: 860px; margin: 0 auto; padding: 0 max(24px, 4vw) 80px; }
+.page { max-width: 860px; margin: 0 auto; padding: 0 max(24px, 4vw) 80px; position: relative; z-index: 2; }
 
 .sec { border-top: 1px solid var(--border); padding-top: 60px; margin-top: 60px; }
 .sec:first-child { border-top: none; margin-top: 0; }
@@ -164,7 +179,7 @@ body::after {
 .sec-rule  { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
 
 /* ── HERO ── */
-.hero { padding: 88px 0 0; }
+.hero { padding: 88px 0 0; position: relative; }
 .hero-status {
   font-size: 12px; color: var(--ink-dim); margin-bottom: 22px;
   display: flex; align-items: center; gap: 8px;
@@ -334,7 +349,7 @@ body::after {
 .bio-text strong { font-weight: 500; color: var(--ink-hi); }
 
 /* ── FOOTER ── */
-.site-footer { margin-top: 84px; border-top: 1px solid var(--border); }
+.site-footer { margin-top: 84px; border-top: 1px solid var(--border); position: relative; z-index: 2; }
 .footer-inner { max-width: 860px; margin: 0 auto; padding: 0 max(24px,4vw); }
 .footer-phrase { padding: 44px 0 34px; border-bottom: 1px solid var(--border); display: flex; align-items: baseline; gap: 0; flex-wrap: wrap; }
 .footer-phrase-text { font-family: var(--mono); font-size: clamp(16px, 2.6vw, 23px); font-weight: 700; letter-spacing: -.01em; line-height: 1.2; }
@@ -360,15 +375,6 @@ body::after {
 /* ── NAV ACTIVE ── */
 .nav-links a.active { color: var(--accent); }
 .nav-links a.active::after { transform: scaleX(1); }
-
-/* ── HERO SPOTLIGHT ── */
-.hero { position: relative; }
-.hero::before {
-  content: '';
-  position: absolute; inset: -40px -24px auto -24px; height: 420px;
-  background: radial-gradient(480px circle at var(--mx, 50%) var(--my, 10%), rgba(70,242,162,.07), transparent 65%);
-  pointer-events: none; z-index: -1; transition: opacity .3s;
-}
 
 .hero-meta-item.avail { display: flex; align-items: center; gap: 7px; }
 .avail-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2.4s ease-in-out infinite; flex-shrink: 0; }
@@ -409,6 +415,7 @@ body::after {
 <body>
 
 <div id="scroll-progress"></div>
+<div id="cursor-halo" aria-hidden="true"></div>
 <div id="boot" aria-hidden="true">
   <div class="boot-box">
     <div class="boot-line" style="animation-delay:.05s"><span class="tag">$</span><span>whoami</span></div>
@@ -812,18 +819,28 @@ document.querySelectorAll('.reveal, .reveal-stagger').forEach(function(el) { io.
 })();
 
 (function() {
-  var hero = document.querySelector('.hero');
-  if (!hero || window.matchMedia('(pointer: coarse)').matches) return;
+  var halo = document.getElementById('cursor-halo');
+  if (!halo || window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var raf = null;
-  hero.addEventListener('mousemove', function(e) {
-    var rect = hero.getBoundingClientRect();
-    var x = ((e.clientX - rect.left) / rect.width) * 100;
-    var y = ((e.clientY - rect.top) / rect.height) * 100;
-    if (raf) cancelAnimationFrame(raf);
+  var lastX = null, lastY = null;
+
+  window.addEventListener('mousemove', function(e) {
+    lastX = e.clientX;
+    lastY = e.clientY;
+    halo.classList.add('active');
+    if (raf) return;
     raf = requestAnimationFrame(function() {
-      hero.style.setProperty('--mx', x + '%');
-      hero.style.setProperty('--my', y + '%');
+      halo.style.transform = 'translate3d(' + lastX + 'px,' + lastY + 'px,0)';
+      raf = null;
     });
+  }, { passive: true });
+
+  window.addEventListener('mouseleave', function() {
+    halo.classList.remove('active');
+  });
+
+  document.addEventListener('mouseleave', function() {
+    halo.classList.remove('active');
   });
 })();
 </script>
