@@ -1,768 +1,831 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>quadraturbo — red team & security research</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="quadraturbo — red team, auditoría de redes y desarrollo de herramientas de seguridad.">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>quadraturbo — red team &amp; security research</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
 
-    <style>
-        :root {
-            --bg:        #0c0c0b;
-            --surface:   #111210;
-            --surface2:  #161614;
-            --border:    #222220;
-            --border-hi: #333330;
-            --ink:       #c4c0b8;
-            --ink-dim:   #4e4b45;
-            --ink-faint: #252420;
-            --accent:    #3dff6e;
-            --red:       #ff4444;
-            --amber:     #d4a843;
-            --blue:      #4a9eff;
-            --mono:      'IBM Plex Mono', 'Courier New', monospace;
-        }
+<style>
+:root {
+  --bg:        #07080a;
+  --bg-soft:   #0a0c0f;
+  --surface:   #0e1114;
+  --surface2:  #14181c;
+  --border:    #1c2226;
+  --border-hi: #2a3238;
+  --ink:       #c7cdd1;
+  --ink-hi:    #eef1f2;
+  --ink-dim:   #5b656b;
+  --ink-faint: #262c30;
+  --accent:    #46f2a2;
+  --accent-dim: #1f5c46;
+  --warn:      #e8a23d;
+  --danger:    #ff5c5c;
+  --blue:      #5aa9ff;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
 
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
+* , *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
-        body {
-            font-family: var(--mono);
-            background: var(--bg);
-            color: var(--ink);
-            font-size: 14px;
-            line-height: 1.7;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-        }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * , *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
-        body::after {
-            content: '';
-            position: fixed; inset: 0;
-            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px);
-            pointer-events: none;
-            z-index: 9999;
-        }
+body {
+  font-family: var(--mono);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  cursor: default;
+}
 
-        /* ── NAV ── */
-        #android-banner { position: relative; z-index: 100; }
+body, p, span, div, h1, h2, h3, li, td, code { cursor: default; }
+a, button, [role="button"], summary, select, label { cursor: pointer; }
 
-        .nav-bar {
-            position: sticky; top: 0; z-index: 50;
-            background: rgba(12,12,11,0.94);
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid var(--border);
-            padding: 0 max(24px, 4vw);
-            display: flex; align-items: center; justify-content: space-between;
-            height: 44px;
-        }
-        .nav-handle { font-weight: 600; font-size: 13px; color: var(--accent); letter-spacing: 0.02em; }
-        .nav-links { display: flex; list-style: none; }
-        .nav-links a {
-            display: block; color: var(--ink-dim); text-decoration: none;
-            font-size: 12px; font-weight: 400; padding: 0 14px;
-            height: 44px; line-height: 44px; letter-spacing: 0.04em;
-            border-left: 1px solid var(--border); transition: color 0.15s;
-        }
-        .nav-links a:hover { color: var(--ink); }
+::selection { background: var(--accent); color: #04140c; }
 
-        /* ── PAGE ── */
-        .page { max-width: 860px; margin: 0 auto; padding: 0 max(24px, 4vw) 80px; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
 
-        /* ── SECTION CHROME ── */
-        .sec { border-top: 1px solid var(--border); padding-top: 56px; margin-top: 56px; }
-        .sec:first-child { border-top: none; margin-top: 0; }
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,.06) 3px, rgba(0,0,0,.06) 4px);
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: overlay;
+}
 
-        .sec-label {
-            display: flex; align-items: baseline; gap: 16px; margin-bottom: 36px;
-        }
-        .sec-num   { font-size: 11px; font-weight: 300; color: var(--ink-dim); letter-spacing: 0.1em; white-space: nowrap; }
-        .sec-title { font-size: 11px; font-weight: 600; color: var(--ink-dim); letter-spacing: 0.15em; text-transform: uppercase; }
-        .sec-rule  { flex: 1; height: 1px; background: var(--border); }
+.grain-vignette {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+  background: radial-gradient(ellipse at 50% 0%, rgba(70,242,162,.05), transparent 55%),
+              radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.55), transparent 60%);
+}
 
-        /* ── HERO ── */
-        .hero { padding: 64px 0 0; }
+/* ── BOOT SEQUENCE ── */
+#boot {
+  position: fixed; inset: 0; z-index: 10000;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  transition: opacity .5s var(--ease), visibility .5s var(--ease);
+}
+#boot.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.boot-box { width: min(560px, 100%); }
+.boot-line {
+  font-size: 12.5px; color: var(--ink-dim); display: flex; gap: 10px;
+  opacity: 0; transform: translateY(4px);
+  animation: bootIn .35s var(--ease) forwards;
+  padding: 3px 0;
+}
+.boot-line b { color: var(--ink); font-weight: 500; }
+.boot-line .ok { color: var(--accent); }
+.boot-line .tag { color: var(--ink-faint); width: 16px; flex-shrink: 0; }
+@keyframes bootIn { to { opacity: 1; transform: none; } }
+.boot-bar {
+  margin-top: 18px; height: 2px; background: var(--ink-faint);
+  overflow: hidden; border-radius: 2px;
+}
+.boot-bar-fill {
+  height: 100%; width: 0%; background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+  transition: width 1.4s var(--ease);
+}
 
-        .hero-status {
-            font-size: 12px; color: var(--ink-dim); margin-bottom: 20px;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .status-dot {
-            width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
-            animation: pulse 2.4s ease-in-out infinite;
-        }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.2} }
+/* ── REVEAL ── */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.reveal.in { opacity: 1; transform: none; }
+.reveal-stagger > * { opacity: 0; transform: translateY(14px); transition: opacity .55s var(--ease), transform .55s var(--ease); }
+.reveal-stagger.in > * { opacity: 1; transform: none; }
+.reveal-stagger.in > *:nth-child(1) { transition-delay: .02s; }
+.reveal-stagger.in > *:nth-child(2) { transition-delay: .08s; }
+.reveal-stagger.in > *:nth-child(3) { transition-delay: .14s; }
+.reveal-stagger.in > *:nth-child(4) { transition-delay: .2s; }
+.reveal-stagger.in > *:nth-child(5) { transition-delay: .26s; }
+.reveal-stagger.in > *:nth-child(6) { transition-delay: .32s; }
 
-        .hero-name {
-            font-size: clamp(28px, 5vw, 48px); font-weight: 600; color: #e8e4da;
-            letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 10px;
-        }
-        .hero-role {
-            font-size: 13px; font-weight: 300; color: var(--ink-dim);
-            font-style: italic; margin-bottom: 28px;
-        }
-        .hero-desc {
-            font-size: 14px; color: var(--ink); max-width: 560px;
-            line-height: 1.8; margin-bottom: 32px; font-weight: 300;
-        }
-        .hero-meta { display: flex; gap: 28px; flex-wrap: wrap; }
-        .hero-meta-item { font-size: 12px; color: var(--ink-dim); }
-        .hero-meta-item a, .hero-meta-item span { color: var(--ink); font-weight: 500; text-decoration: none; }
-        .hero-meta-item a:hover { color: var(--accent); }
+/* ── NAV ── */
+.nav-bar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(7,8,10,.86);
+  backdrop-filter: blur(10px) saturate(140%);
+  border-bottom: 1px solid var(--border);
+  padding: 0 max(24px, 4vw);
+  display: flex; align-items: center; justify-content: space-between;
+  height: 46px;
+}
+.nav-handle { font-weight: 600; font-size: 13px; color: var(--ink-hi); letter-spacing: .02em; display: flex; align-items: center; gap: 8px; }
+.nav-handle .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2.4s ease-in-out infinite; }
+.nav-links { display: flex; list-style: none; }
+.nav-links a {
+  position: relative; display: block; color: var(--ink-dim); text-decoration: none;
+  font-size: 12px; font-weight: 400; padding: 0 15px;
+  height: 46px; line-height: 46px; letter-spacing: .04em;
+}
+.nav-links a::after {
+  content: ''; position: absolute; left: 15px; right: 15px; bottom: 8px; height: 1px;
+  background: var(--accent); transform: scaleX(0); transform-origin: left;
+  transition: transform .25s var(--ease);
+}
+.nav-links a:hover { color: var(--ink-hi); }
+.nav-links a:hover::after { transform: scaleX(1); }
 
-        /* ── STACK ── */
-        .stack-tag {
-            display: inline-block; border: 1px solid var(--border-hi);
-            padding: 2px 9px; margin: 3px 4px; font-size: 12px; color: var(--ink);
-            border-radius: 2px; transition: border-color 0.15s, color 0.15s; cursor: default;
-        }
-        .stack-tag:hover { border-color: var(--accent); color: var(--accent); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
 
-        /* ── PROJECTS ── */
-        .proj-list { display: flex; flex-direction: column; }
-        .proj-item {
-            display: grid; grid-template-columns: 48px 1fr auto;
-            gap: 0 20px; align-items: start;
-            border-top: 1px solid var(--border); padding: 22px 0;
-        }
-        .proj-item:last-child { border-bottom: 1px solid var(--border); }
-        .proj-idx  { font-size: 11px; color: var(--ink-faint); font-weight: 300; padding-top: 3px; }
-        .proj-name { font-size: 15px; font-weight: 600; color: #e0dcd4; margin-bottom: 5px; letter-spacing: -0.01em; }
-        .proj-desc { font-size: 13px; color: var(--ink-dim); line-height: 1.6; margin-bottom: 10px; max-width: 520px; }
-        .proj-link {
-            display: inline-flex; align-items: center; gap: 4px; font-size: 12px;
-            color: var(--accent); text-decoration: none; opacity: 0.6; transition: opacity 0.15s;
-        }
-        .proj-link::before { content: '→'; }
-        .proj-link:hover { opacity: 1; }
-        .proj-status { font-size: 11px; color: var(--ink-dim); letter-spacing: 0.06em; white-space: nowrap; padding-top: 3px; }
-        .proj-status.live { color: var(--accent); }
-        .proj-status.beta { color: var(--amber); }
+/* ── PAGE ── */
+.page { max-width: 860px; margin: 0 auto; padding: 0 max(24px, 4vw) 80px; }
 
-        /* ── SERVICES ── */
-        .svc-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--border); }
-        .svc-item { padding: 28px 22px; border-right: 1px solid var(--border); }
-        .svc-item:last-child { border-right: none; }
-        .svc-name {
-            font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
-            text-transform: uppercase; color: var(--ink); margin-bottom: 14px;
-            padding-bottom: 14px; border-bottom: 1px solid var(--border);
-        }
-        .svc-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
-        .svc-list li { font-size: 12px; color: var(--ink-dim); padding-left: 16px; position: relative; }
-        .svc-list li::before { content: '—'; position: absolute; left: 0; color: var(--ink-faint); }
+.sec { border-top: 1px solid var(--border); padding-top: 60px; margin-top: 60px; }
+.sec:first-child { border-top: none; margin-top: 0; }
 
-        /* ── TABS (Recursos) ── */
-        .tab-nav {
-            display: flex; border-bottom: 1px solid var(--border);
-            margin-bottom: 32px; gap: 0;
-        }
-        .tab-btn {
-            background: none; border: none; border-bottom: 2px solid transparent;
-            color: var(--ink-dim); font-family: var(--mono); font-size: 12px;
-            font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
-            padding: 10px 20px; cursor: pointer; transition: all 0.15s;
-            margin-bottom: -1px;
-        }
-        .tab-btn:hover { color: var(--ink); }
-        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.sec-label { display: flex; align-items: baseline; gap: 16px; margin-bottom: 38px; }
+.sec-num   { font-size: 11px; font-weight: 300; color: var(--ink-dim); letter-spacing: .1em; white-space: nowrap; }
+.sec-title { font-size: 11px; font-weight: 600; color: var(--ink); letter-spacing: .16em; text-transform: uppercase; }
+.sec-rule  { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
 
-        .tab-panel { display: none; }
-        .tab-panel.active { display: block; }
+/* ── HERO ── */
+.hero { padding: 88px 0 0; }
+.hero-status {
+  font-size: 12px; color: var(--ink-dim); margin-bottom: 22px;
+  display: flex; align-items: center; gap: 8px;
+}
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2.4s ease-in-out infinite; }
 
-        /* recursos: tools */
-        .tool-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1px; background: var(--border); border: 1px solid var(--border);
-        }
-        .tool-item { background: var(--bg); padding: 16px 18px; }
-        .tool-name { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
-        .tool-cat  { font-size: 11px; color: var(--ink-dim); }
+.hero-name {
+  font-size: clamp(32px, 6vw, 54px); font-weight: 700; color: var(--ink-hi);
+  letter-spacing: -.02em; line-height: 1.05; margin-bottom: 12px;
+  position: relative; display: inline-block;
+}
+.hero-name .caret {
+  display: inline-block; width: .5em; height: .82em; background: var(--accent);
+  margin-left: 4px; vertical-align: -.08em; animation: blink 1s step-end infinite;
+}
+.hero-role {
+  font-size: 13px; font-weight: 300; color: var(--ink-dim);
+  font-style: italic; margin-bottom: 30px;
+}
+.hero-desc {
+  font-size: 14.5px; color: var(--ink); max-width: 560px;
+  line-height: 1.85; margin-bottom: 34px; font-weight: 300;
+}
+.hero-meta { display: flex; gap: 30px; flex-wrap: wrap; }
+.hero-meta-item { font-size: 12px; color: var(--ink-dim); }
+.hero-meta-item a, .hero-meta-item span.v { color: var(--ink); font-weight: 500; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .2s, color .2s; }
+.hero-meta-item a:hover { color: var(--accent); border-color: var(--accent); }
 
-        /* recursos: reads */
-        .reads-list { display: flex; flex-direction: column; }
-        .read-item {
-            display: grid; grid-template-columns: 1fr auto;
-            gap: 12px; align-items: baseline;
-            border-top: 1px solid var(--border); padding: 14px 0;
-        }
-        .read-item:last-child { border-bottom: 1px solid var(--border); }
-        .read-title { font-size: 13px; color: var(--ink); font-weight: 500; margin-bottom: 3px; }
-        .read-auth  { font-size: 12px; color: var(--ink-dim); }
-        .read-tag {
-            font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
-            padding: 2px 8px; border: 1px solid var(--border-hi);
-            color: var(--ink-dim); white-space: nowrap;
-        }
+/* ── STACK ── */
+.stack-tag {
+  display: inline-block; border: 1px solid var(--border-hi);
+  padding: 3px 10px; margin: 3px 5px 3px 0; font-size: 12px; color: var(--ink);
+  border-radius: 2px; transition: border-color .18s, color .18s, transform .18s var(--ease);
+  cursor: default;
+}
+.stack-tag:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
 
-        /* recursos: repos */
-        .repo-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); }
-        .repo-item { background: var(--bg); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
-        .repo-name { font-size: 13px; color: var(--blue); font-weight: 500; margin-bottom: 3px; }
-        .repo-desc { font-size: 12px; color: var(--ink-dim); }
-        .repo-lang { font-size: 11px; color: var(--ink-dim); white-space: nowrap; }
+/* ── FORMACIÓN ── */
+.edu-list { display: flex; flex-direction: column; }
+.edu-item {
+  display: grid; grid-template-columns: 108px 1fr auto;
+  gap: 4px 20px; align-items: start;
+  border-top: 1px solid var(--border); padding: 20px 0;
+}
+.edu-item:last-child { border-bottom: 1px solid var(--border); }
+.edu-when { font-size: 11px; color: var(--ink-dim); padding-top: 3px; letter-spacing: .02em; }
+.edu-name { font-size: 14.5px; font-weight: 600; color: var(--ink-hi); margin-bottom: 4px; letter-spacing: -.005em; }
+.edu-where { font-size: 12.5px; color: var(--ink-dim); }
+.edu-status {
+  font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  white-space: nowrap; padding: 3px 9px; border: 1px solid var(--border-hi); border-radius: 2px;
+  align-self: start;
+}
+.edu-status.done { color: var(--accent); border-color: var(--accent-dim); }
+.edu-status.wip  { color: var(--warn); border-color: #4a3a1c; }
 
-        /* ── NOW ── */
-        .now-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .now-card {
-            border: 1px solid var(--border); padding: 24px 22px;
-            background: var(--surface);
-        }
-        .now-card-label {
-            font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
-            text-transform: uppercase; color: var(--ink-dim);
-            margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
-        }
-        .now-card-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.cert-wrap { margin-top: 28px; }
+.cert-label { font-size: 11px; color: var(--ink-dim); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 14px; }
+.cert-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.cert-chip {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--ink); border: 1px solid var(--border-hi);
+  padding: 6px 12px; border-radius: 2px;
+}
+.cert-chip .cd { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.cert-chip.wip .cd { background: var(--warn); }
+.cert-chip.wip { color: var(--ink-dim); border-style: dashed; }
 
-        .now-item {
-            display: flex; align-items: baseline; gap: 12px;
-            padding: 8px 0; border-bottom: 1px solid var(--ink-faint);
-            font-size: 13px;
-        }
-        .now-item:last-child { border-bottom: none; }
-        .now-bullet { color: var(--accent); font-size: 10px; flex-shrink: 0; }
-        .now-text   { color: var(--ink); }
-        .now-sub    { font-size: 11px; color: var(--ink-dim); margin-top: 2px; }
+/* ── PROJECTS ── */
+.proj-list { display: flex; flex-direction: column; }
+.proj-item {
+  display: grid; grid-template-columns: 40px 1fr auto;
+  gap: 0 20px; align-items: start;
+  border-top: 1px solid var(--border); padding: 24px 0;
+  transition: background .2s var(--ease);
+  position: relative;
+}
+.proj-item:last-child { border-bottom: 1px solid var(--border); }
+.proj-item::before {
+  content: ''; position: absolute; left: -24px; top: 0; bottom: 0; width: 2px;
+  background: var(--accent); transform: scaleY(0); transform-origin: top;
+  transition: transform .3s var(--ease);
+}
+.proj-item:hover::before { transform: scaleY(1); }
+.proj-idx  { font-size: 11px; color: var(--ink-faint); font-weight: 300; padding-top: 3px; transition: color .2s; }
+.proj-item:hover .proj-idx { color: var(--accent); }
+.proj-name { font-size: 15px; font-weight: 600; color: var(--ink-hi); margin-bottom: 6px; letter-spacing: -.01em; }
+.proj-desc { font-size: 13px; color: var(--ink-dim); line-height: 1.65; margin-bottom: 11px; max-width: 520px; }
+.proj-link {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 12px;
+  color: var(--accent); text-decoration: none; opacity: .7; transition: opacity .18s, gap .18s;
+}
+.proj-link::before { content: '→'; transition: transform .18s var(--ease); }
+.proj-link:hover { opacity: 1; }
+.proj-link:hover::before { transform: translateX(3px); }
+.proj-status { font-size: 11px; color: var(--ink-dim); letter-spacing: .06em; white-space: nowrap; padding-top: 3px; }
+.proj-status.live { color: var(--accent); }
+.proj-status.beta { color: var(--warn); }
 
-        .now-stat {
-            display: flex; justify-content: space-between; align-items: baseline;
-            padding: 8px 0; border-bottom: 1px solid var(--ink-faint); font-size: 12px;
-        }
-        .now-stat:last-child { border-bottom: none; }
-        .now-stat-k { color: var(--ink-dim); }
-        .now-stat-v { color: var(--ink); font-weight: 500; }
-        .now-stat-v.active { color: var(--accent); }
+/* ── SERVICES ── */
+.svc-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.svc-item { padding: 30px 24px; border-right: 1px solid var(--border); background: var(--surface); transition: background .2s; }
+.svc-item:hover { background: var(--surface2); }
+.svc-item:last-child { border-right: none; }
+.svc-name {
+  font-size: 11px; font-weight: 600; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-hi); margin-bottom: 15px;
+  padding-bottom: 15px; border-bottom: 1px solid var(--border);
+}
+.svc-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.svc-list li { font-size: 12px; color: var(--ink-dim); padding-left: 16px; position: relative; }
+.svc-list li::before { content: '—'; position: absolute; left: 0; color: var(--ink-faint); }
 
-        /* ── BIO ── */
-        .bio-text {
-            font-size: 14px; color: var(--ink); line-height: 1.85;
-            max-width: 620px; font-weight: 300;
-        }
-        .bio-text strong { font-weight: 500; color: #e0dcd4; }
+/* ── TABS ── */
+.tab-nav { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 32px; gap: 0; }
+.tab-btn {
+  background: none; border: none; border-bottom: 2px solid transparent;
+  color: var(--ink-dim); font-family: var(--mono); font-size: 12px;
+  font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+  padding: 11px 20px; cursor: pointer; transition: all .18s; margin-bottom: -1px;
+}
+.tab-btn:hover { color: var(--ink); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeUp .35s var(--ease); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-        /* ── FOSS PILL ── */
-        .foss-wrap { margin-top: 56px; }
-        .foss-pill {
-            display: flex; align-items: center; gap: 16px;
-            border: 1px solid var(--border); padding: 14px 20px;
-            max-width: 620px; background: var(--surface);
-        }
-        .foss-dot {
-            flex-shrink: 0; width: 6px; height: 6px; border-radius: 50%;
-            background: var(--accent); animation: pulse 2.4s ease-in-out infinite;
-        }
-        .foss-text {
-            flex: 1; font-size: 12px; color: var(--ink-dim);
-            line-height: 1.5; font-style: italic;
-        }
-        .foss-cursor {
-            display: inline-block; width: 2px; height: 0.85em;
-            background: var(--accent); margin-left: 2px;
-            vertical-align: text-bottom; animation: blink 1s step-end infinite;
-        }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-        .foss-right { flex-shrink: 0; display: flex; align-items: center; gap: 12px; }
-        .foss-count { font-size: 11px; color: var(--ink-faint); letter-spacing: 0.05em; }
-        #foss-next {
-            background: none; border: 1px solid var(--border); color: var(--ink-dim);
-            padding: 4px 10px; font-size: 11px; font-family: var(--mono);
-            letter-spacing: 0.06em; cursor: pointer; transition: all 0.15s;
-        }
-        #foss-next:hover { border-color: var(--accent); color: var(--accent); }
+.tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.tool-item { background: var(--bg-soft); padding: 16px 18px; transition: background .18s; }
+.tool-item:hover { background: var(--surface2); }
+.tool-name { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+.tool-cat  { font-size: 11px; color: var(--ink-dim); }
 
-        /* ── FOOTER ── */
-        .site-footer { margin-top: 80px; border-top: 1px solid var(--border); }
-        .footer-inner { max-width: 860px; margin: 0 auto; padding: 0 max(24px,4vw); }
-        .footer-phrase {
-            padding: 40px 0 32px; border-bottom: 1px solid var(--border);
-            display: flex; align-items: baseline; gap: 0;
-        }
-        .footer-phrase-text {
-            font-family: var(--mono); font-size: clamp(15px, 2.5vw, 22px);
-            font-weight: 600; letter-spacing: -0.01em; line-height: 1.2;
-        }
-        .fp-white { color: #e0dcd4; }
-        .fp-green { color: var(--accent); }
-        .fp-sep   { color: var(--ink-dim); margin: 0 0.3em; font-weight: 300; }
-        .fp-dim   { color: var(--ink-dim); }
-        .footer-phrase-sub {
-            margin-left: auto; font-size: 11px; color: var(--ink-faint);
-            letter-spacing: 0.12em; text-transform: uppercase;
-            white-space: nowrap; padding-left: 32px; align-self: center;
-        }
-        .footer-bottom {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 20px 0; flex-wrap: wrap; gap: 12px;
-        }
-        .footer-copy { font-size: 11px; color: var(--ink-faint); letter-spacing: 0.04em; }
-        .footer-links { display: flex; gap: 20px; }
-        .footer-links a { font-size: 11px; color: var(--ink-dim); text-decoration: none; letter-spacing: 0.06em; transition: color 0.15s; }
-        .footer-links a:hover { color: var(--accent); }
+.reads-list { display: flex; flex-direction: column; }
+.read-item { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: baseline; border-top: 1px solid var(--border); padding: 15px 0; }
+.read-item:last-child { border-bottom: 1px solid var(--border); }
+.read-title { font-size: 13px; color: var(--ink); font-weight: 500; margin-bottom: 3px; }
+.read-auth  { font-size: 12px; color: var(--ink-dim); }
+.read-tag { font-size: 10px; font-weight: 600; letter-spacing: .08em; padding: 3px 9px; border: 1px solid var(--border-hi); color: var(--ink-dim); white-space: nowrap; border-radius: 2px; }
 
-        /* ── RESPONSIVE ── */
-        @media (max-width: 680px) {
-            .nav-links { display: none; }
-            .proj-item { grid-template-columns: 32px 1fr; }
-            .proj-status { display: none; }
-            .svc-grid { grid-template-columns: 1fr; }
-            .svc-item { border-right: none; border-bottom: 1px solid var(--border); }
-            .svc-item:last-child { border-bottom: none; }
-            .lab-grid { grid-template-columns: 1fr; }
-            .now-grid { grid-template-columns: 1fr; }
-            .tool-grid { grid-template-columns: 1fr 1fr; }
-            .footer-phrase { flex-direction: column; gap: 14px; }
-            .footer-phrase-sub { margin-left: 0; padding-left: 0; }
-            .footer-bottom { justify-content: center; text-align: center; }
-            .foss-count { display: none; }
-        }
-    </style>
+.repo-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.repo-item { background: var(--bg-soft); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 20px; transition: background .18s; }
+.repo-item:hover { background: var(--surface2); }
+.repo-name { font-size: 13px; color: var(--blue); font-weight: 500; margin-bottom: 3px; }
+.repo-desc { font-size: 12px; color: var(--ink-dim); }
+.repo-lang { font-size: 11px; color: var(--ink-dim); white-space: nowrap; }
+
+/* ── NOW ── */
+.now-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.now-card { border: 1px solid var(--border); padding: 26px 22px; background: var(--surface); border-radius: 3px; transition: border-color .2s; }
+.now-card:hover { border-color: var(--border-hi); }
+.now-card-label { font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-dim); margin-bottom: 17px; display: flex; align-items: center; gap: 8px; }
+.now-card-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.now-item { display: flex; align-items: baseline; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--ink-faint); font-size: 13px; }
+.now-item:last-child { border-bottom: none; }
+.now-bullet { color: var(--accent); font-size: 10px; flex-shrink: 0; }
+.now-text   { color: var(--ink); }
+.now-sub    { font-size: 11px; color: var(--ink-dim); margin-top: 2px; }
+.now-stat { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--ink-faint); font-size: 12px; }
+.now-stat:last-child { border-bottom: none; }
+.now-stat-k { color: var(--ink-dim); }
+.now-stat-v { color: var(--ink); font-weight: 500; }
+.now-stat-v.active { color: var(--accent); }
+
+/* ── BIO ── */
+.bio-text { font-size: 14.5px; color: var(--ink); line-height: 1.9; max-width: 620px; font-weight: 300; }
+.bio-text strong { font-weight: 500; color: var(--ink-hi); }
+
+/* ── FOOTER ── */
+.site-footer { margin-top: 84px; border-top: 1px solid var(--border); }
+.footer-inner { max-width: 860px; margin: 0 auto; padding: 0 max(24px,4vw); }
+.footer-phrase { padding: 44px 0 34px; border-bottom: 1px solid var(--border); display: flex; align-items: baseline; gap: 0; flex-wrap: wrap; }
+.footer-phrase-text { font-family: var(--mono); font-size: clamp(16px, 2.6vw, 23px); font-weight: 700; letter-spacing: -.01em; line-height: 1.2; }
+.fp-white { color: var(--ink-hi); }
+.fp-green { color: var(--accent); }
+.fp-sep   { color: var(--ink-dim); margin: 0 .3em; font-weight: 300; }
+.fp-dim   { color: var(--ink-dim); }
+.footer-phrase-sub { margin-left: auto; font-size: 11px; color: var(--ink-faint); letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; padding-left: 32px; align-self: center; }
+.footer-bottom { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; flex-wrap: wrap; gap: 12px; }
+.footer-copy { font-size: 11px; color: var(--ink-faint); letter-spacing: .04em; }
+.footer-links { display: flex; gap: 20px; }
+.footer-links a { font-size: 11px; color: var(--ink-dim); text-decoration: none; letter-spacing: .06em; transition: color .18s; }
+.footer-links a:hover { color: var(--accent); }
+
+/* ── SCROLL PROGRESS ── */
+#scroll-progress {
+  position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--blue));
+  z-index: 10001; transition: width .08s linear;
+  box-shadow: 0 0 8px rgba(70,242,162,.5);
+}
+
+/* ── NAV ACTIVE ── */
+.nav-links a.active { color: var(--accent); }
+.nav-links a.active::after { transform: scaleX(1); }
+
+/* ── HERO SPOTLIGHT ── */
+.hero { position: relative; }
+.hero::before {
+  content: '';
+  position: absolute; inset: -40px -24px auto -24px; height: 420px;
+  background: radial-gradient(480px circle at var(--mx, 50%) var(--my, 10%), rgba(70,242,162,.07), transparent 65%);
+  pointer-events: none; z-index: -1; transition: opacity .3s;
+}
+
+.hero-meta-item.avail { display: flex; align-items: center; gap: 7px; }
+.avail-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2.4s ease-in-out infinite; flex-shrink: 0; }
+
+/* ── BACK TO TOP ── */
+#back-to-top {
+  position: fixed; right: max(24px, 4vw); bottom: 28px; z-index: 60;
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid var(--border-hi); background: rgba(14,17,20,.85);
+  backdrop-filter: blur(8px);
+  color: var(--accent); font-size: 15px; font-family: var(--mono);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: translateY(10px) scale(.92); pointer-events: none;
+  transition: opacity .25s var(--ease), transform .25s var(--ease), border-color .2s;
+}
+#back-to-top.visible { opacity: 1; transform: none; pointer-events: auto; }
+#back-to-top:hover { border-color: var(--accent); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 680px) {
+  .nav-links { display: none; }
+  .proj-item { grid-template-columns: 28px 1fr; }
+  .proj-item::before { left: -16px; }
+  .proj-status { display: none; }
+  .svc-grid { grid-template-columns: 1fr; }
+  .svc-item { border-right: none; border-bottom: 1px solid var(--border); }
+  .svc-item:last-child { border-bottom: none; }
+  .now-grid { grid-template-columns: 1fr; }
+  .tool-grid { grid-template-columns: 1fr 1fr; }
+  .edu-item { grid-template-columns: 1fr; }
+  .edu-status { justify-self: start; }
+  .footer-phrase { flex-direction: column; gap: 14px; }
+  .footer-phrase-sub { margin-left: 0; padding-left: 0; }
+  .footer-bottom { justify-content: center; text-align: center; }
+}
+</style>
 </head>
 <body>
 
-<div id="android-banner"></div>
-<script src="https://keepandroidopen.org/banner.js?lang=es&size=mini&id=android-banner"></script>
+<div id="scroll-progress"></div>
+<div id="boot" aria-hidden="true">
+  <div class="boot-box">
+    <div class="boot-line" style="animation-delay:.05s"><span class="tag">$</span><span>whoami</span></div>
+    <div class="boot-line" style="animation-delay:.2s"><span class="tag ok">›</span><b>quadraturbo</b></div>
+    <div class="boot-line" style="animation-delay:.4s"><span class="tag">$</span><span>init --profile red-team</span></div>
+    <div class="boot-line" style="animation-delay:.6s"><span class="tag ok">✓</span><span>cargando stack, proyectos, formación…</span></div>
+    <div class="boot-line" style="animation-delay:.85s"><span class="tag ok">✓</span><span>conexión establecida</span></div>
+    <div class="boot-bar"><div class="boot-bar-fill" id="bootFill"></div></div>
+  </div>
+</div>
+<div class="grain-vignette"></div>
 
 <nav class="nav-bar">
-    <span class="nav-handle">quadraturbo_</span>
-    <ul class="nav-links">
-        <a href="#stack">stack</a>
-        <a href="#projects">proyectos</a>
-        <a href="#services">servicios</a>
-        <a href="#lab">lab</a>
-        <a href="#recursos">recursos</a>
-        <a href="#now">now</a>
-        <a href="#bio">bio</a>
-    </ul>
+  <span class="nav-handle"><span class="dot"></span>quadraturbo_</span>
+  <ul class="nav-links">
+    <a href="#stack">stack</a>
+    <a href="#formacion">formación</a>
+    <a href="#projects">proyectos</a>
+    <a href="#services">servicios</a>
+    <a href="#recursos">recursos</a>
+    <a href="#now">now</a>
+    <a href="#bio">bio</a>
+  </ul>
 </nav>
 
 <div class="page">
 
-    <!-- §00 HERO -->
-    <section class="hero sec">
-        <div class="hero-status">
-            <div class="status-dot"></div>
-            online · red team &amp; security research
+  <section class="hero sec">
+    <div class="hero-status reveal">
+      <div class="status-dot"></div>
+      online · red team &amp; security research
+    </div>
+    <h1 class="hero-name reveal">quadraturbo<span class="caret"></span></h1>
+    <p class="hero-role reveal">penetration tester · network auditor · tool developer</p>
+    <p class="hero-desc reveal">
+      Estudio la superficie de ataque antes de que lo haga alguien con malas intenciones.
+      Infraestructuras, aplicaciones, controles físicos.
+    </p>
+    <div class="hero-meta reveal">
+      <div class="hero-meta-item">basado en <span class="v">ES</span></div>
+      <div class="hero-meta-item">github <a href="https://github.com/quadraturbo" target="_blank" rel="noopener noreferrer">quadraturbo</a></div>
+      <div class="hero-meta-item">hacking <span class="v">24/7</span></div>
+      <div class="hero-meta-item avail"><span class="avail-dot"></span>disponible</div>
+    </div>
+  </section>
+
+  <section id="stack" class="sec">
+    <div class="sec-label reveal">
+      <span class="sec-num">§01</span>
+      <span class="sec-title">Stack</span>
+      <div class="sec-rule"></div>
+    </div>
+    <p class="reveal">
+      <span class="stack-tag">linux / bash</span>
+      <span class="stack-tag">python</span>
+      <span class="stack-tag">networking / cisco</span>
+      <span class="stack-tag">web pentesting</span>
+      <span class="stack-tag">docker</span>
+      <span class="stack-tag">digital forensics</span>
+      <span class="stack-tag">burp suite</span>
+      <span class="stack-tag">metasploit</span>
+      <span class="stack-tag">wireshark</span>
+      <span class="stack-tag">nmap</span>
+      <span class="stack-tag">ghidra</span>
+      <span class="stack-tag">osint</span>
+      <span class="stack-tag">hyper-v</span>
+      <span class="stack-tag">windows server</span>
+      <span class="stack-tag">powershell</span>
+      <span class="stack-tag">rust</span>
+    </p>
+  </section>
+
+  <section id="formacion" class="sec">
+    <div class="sec-label reveal">
+      <span class="sec-num">§02</span>
+      <span class="sec-title">Formación</span>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="edu-list reveal-stagger">
+      <div class="edu-item">
+        <span class="edu-when">2024 — 2026</span>
+        <div>
+          <div class="edu-name">SMR — Sistemas Microinformáticos y Redes</div>
+          <div class="edu-where">IES ADA-ITS</div>
         </div>
-        <h1 class="hero-name">quadraturbo</h1>
-        <p class="hero-role">penetration tester · network auditor · tool developer</p>
-        <p class="hero-desc">
-            Estudio la superficie de ataque antes de que lo haga alguien con malas intenciones.
-            Infraestructuras, aplicaciones, controles físicos.
-        </p>
-        <div class="hero-meta">
-            <div class="hero-meta-item">basado en <span>ES</span></div>
-            <div class="hero-meta-item">github <a href="https://github.com/quadraturbo" target="_blank">quadraturbo</a></div>
-            <div class="hero-meta-item">hacking <span>24/7</span></div>
+        <span class="edu-status done">titulado</span>
+      </div>
+      <div class="edu-item">
+        <span class="edu-when">2026 —</span>
+        <div>
+          <div class="edu-name">ASIR — Administración de Sistemas Informáticos en Red</div>
+          <div class="edu-where">-</div>
         </div>
-    </section>
-
-    <!-- §01 STACK -->
-    <section id="stack" class="sec">
-        <div class="sec-label">
-            <span class="sec-num">§01</span>
-            <span class="sec-title">Stack</span>
-            <div class="sec-rule"></div>
+        <span class="edu-status wip">cursando</span>
+      </div>
+      <div class="edu-item">
+        <span class="edu-when">próx.</span>
+        <div>
+          <div class="edu-name">CETI — Especialización en Ciberseguridad</div>
+          <div class="edu-where">-</div>
         </div>
-        <p>
-            <span class="stack-tag">linux / bash</span>
-            <span class="stack-tag">python</span>
-            <span class="stack-tag">networking / cisco</span>
-            <span class="stack-tag">web pentesting</span>
-            <span class="stack-tag">docker</span>
-            <span class="stack-tag">digital forensics</span>
-            <span class="stack-tag">burp suite</span>
-            <span class="stack-tag">metasploit</span>
-            <span class="stack-tag">wireshark</span>
-            <span class="stack-tag">nmap</span>
-            <span class="stack-tag">ghidra</span>
-            <span class="stack-tag">osint</span>
-            <span class="stack-tag">hyper-v</span>
-            <span class="stack-tag">windows server</span>
-            <span class="stack-tag">powershell</span>
-        </p>
-    </section>
-
-    <!-- §02 PROYECTOS -->
-    <section id="projects" class="sec">
-        <div class="sec-label">
-            <span class="sec-num">§02</span>
-            <span class="sec-title">Proyectos</span>
-            <div class="sec-rule"></div>
-        </div>
-        <div class="proj-list">
-            <div class="proj-item">
-                <span class="proj-idx">001</span>
-                <div>
-                    <div class="proj-name">IPROT</div>
-                    <div class="proj-desc">Rotación automática de IPs a través de la red TOR. Para operaciones Red Team que requieren anonimato persistente sin gestión manual de cadenas de proxy.</div>
-                    <a class="proj-link" href="https://github.com/quadraturbo/IPROT" target="_blank">github.com/quadraturbo/IPROT</a>
-                </div>
-                <span class="proj-status live">publicado</span>
-            </div>
-            <div class="proj-item">
-                <span class="proj-idx">002</span>
-                <div>
-                    <div class="proj-name">testAI</div>
-                    <div class="proj-desc">Generador de tests técnicos en tiempo real vía LLM. Orientado a preparación de certificaciones y estudio de material técnico denso.</div>
-                    <a class="proj-link" href="https://github.com/quadraturbo/testAI" target="_blank">github.com/quadraturbo/testAI</a>
-                </div>
-                <span class="proj-status beta">beta</span>
-            </div>
-            <div class="proj-item">
-                <span class="proj-idx">003</span>
-                <div>
-                    <div class="proj-name">Integrity Checker</div>
-                    <div class="proj-desc">Suite forense para verificación masiva de integridad de archivos. Cadenas de custodia digital, detección de manipulaciones, generación de informes.</div>
-                    <a class="proj-link" href="https://github.com/quadraturbo/integrity-checker" target="_blank">github.com/quadraturbo/integrity-checker</a>
-                </div>
-                <span class="proj-status live">v1.0</span>
-            </div>
-            <div class="proj-item">
-                <span class="proj-idx">004</span>
-                <div>
-                    <div class="proj-name">Panel de control local</div>
-                    <div class="proj-desc">Panel de control local de red doméstica. Radar de dispositivos en tiempo real, Wake-on-LAN, monitorización de estado. HTML puro, sin dependencias.</div>
-                    <a class="proj-link" href="#lab">ver entorno →</a>
-                </div>
-                <span class="proj-status beta">local</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- §03 SERVICIOS -->
-    <section id="services" class="sec">
-        <div class="sec-label">
-            <span class="sec-num">§03</span>
-            <span class="sec-title">Servicios</span>
-            <div class="sec-rule"></div>
-        </div>
-        <div class="svc-grid">
-            <div class="svc-item">
-                <div class="svc-name">Auditoría de Seguridad</div>
-                <ul class="svc-list">
-                    <li>Pentesting web y aplicaciones móviles</li>
-                    <li>Auditoría de infraestructura de red</li>
-                    <li>Análisis de configuraciones</li>
-                    <li>Revisión de código seguro</li>
-                </ul>
-            </div>
-            <div class="svc-item">
-                <div class="svc-name">Securización Física</div>
-                <ul class="svc-list">
-                    <li>Physical penetration testing</li>
-                    <li>Evaluación de controles de acceso</li>
-                    <li>Social engineering assessments</li>
-                    <li>Análisis de procedimientos internos</li>
-                </ul>
-            </div>
-            <div class="svc-item">
-                <div class="svc-name">Auditoría Remota</div>
-                <ul class="svc-list">
-                    <li>Vulnerability assessments</li>
-                    <li>Análisis de configuración cloud</li>
-                    <li>Red team operations</li>
-                    <li>Informes ejecutivos y técnicos</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-
-
-    <!-- §05 RECURSOS -->
-    <section id="recursos" class="sec">
-        <div class="sec-label">
-            <span class="sec-num">§04</span>
-            <span class="sec-title">Recursos</span>
-            <div class="sec-rule"></div>
-        </div>
-
-        <div class="tab-nav">
-            <button class="tab-btn active" data-tab="tools">Herramientas</button>
-            <button class="tab-btn" data-tab="reads">Lecturas</button>
-            <button class="tab-btn" data-tab="repos">Repos</button>
-        </div>
-
-        <!-- Herramientas -->
-        <div class="tab-panel active" id="tab-tools">
-            <div class="tool-grid">
-                <div class="tool-item"><div class="tool-name">Burp Suite</div><div class="tool-cat">web · proxy</div></div>
-                <div class="tool-item"><div class="tool-name">Metasploit</div><div class="tool-cat">explotación · post</div></div>
-                <div class="tool-item"><div class="tool-name">Nmap / Masscan</div><div class="tool-cat">reconocimiento · red</div></div>
-                <div class="tool-item"><div class="tool-name">Ghidra</div><div class="tool-cat">reversing · análisis</div></div>
-                <div class="tool-item"><div class="tool-name">Wireshark</div><div class="tool-cat">captura · análisis</div></div>
-                <div class="tool-item"><div class="tool-name">Proxmark3</div><div class="tool-cat">RFID · NFC</div></div>
-                <div class="tool-item"><div class="tool-name">Bloodhound</div><div class="tool-cat">AD · grafos</div></div>
-                <div class="tool-item"><div class="tool-name">CrackMapExec</div><div class="tool-cat">lateral · SMB</div></div>
-                <div class="tool-item"><div class="tool-name">ffuf</div><div class="tool-cat">fuzzing · web</div></div>
-                <div class="tool-item"><div class="tool-name">SQLMap</div><div class="tool-cat">injection · DB</div></div>
-                <div class="tool-item"><div class="tool-name">Volatility</div><div class="tool-cat">forense · memoria</div></div>
-                <div class="tool-item"><div class="tool-name">Autopsy</div><div class="tool-cat">forense · disco</div></div>
-            </div>
-        </div>
-
-        <!-- Lecturas -->
-        <div class="tab-panel" id="tab-reads">
-            <div class="reads-list">
-                <div class="read-item">
-                    <div><div class="read-title">The Web Application Hacker's Handbook</div><div class="read-auth">Stuttard &amp; Pinto</div></div>
-                    <span class="read-tag">WEB</span>
-                </div>
-                <div class="read-item">
-                    <div><div class="read-title">Hacking: The Art of Exploitation</div><div class="read-auth">Jon Erickson</div></div>
-                    <span class="read-tag">BAJO NIVEL</span>
-                </div>
-                <div class="read-item">
-                    <div><div class="read-title">The Hacker Playbook 3</div><div class="read-auth">Peter Kim</div></div>
-                    <span class="read-tag">RED TEAM</span>
-                </div>
-                <div class="read-item">
-                    <div><div class="read-title">Penetration Testing</div><div class="read-auth">Georgia Weidman</div></div>
-                    <span class="read-tag">PENTESTING</span>
-                </div>
-                <div class="read-item">
-                    <div><div class="read-title">Phrack Magazine</div><div class="read-auth">phrack.org</div></div>
-                    <span class="read-tag">ZINE</span>
-                </div>
-                <div class="read-item">
-                    <div><div class="read-title">PortSwigger Web Security Academy</div><div class="read-auth">portswigger.net</div></div>
-                    <span class="read-tag">LABS</span>
-                </div>
-                <div class="read-item">
-                    <div><div class="read-title">HackTricks</div><div class="read-auth">book.hacktricks.xyz</div></div>
-                    <span class="read-tag">REFERENCIA</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Repos -->
-        <div class="tab-panel" id="tab-repos">
-            <div class="repo-list">
-                <div class="repo-item">
-                    <div><div class="repo-name">SecLists</div><div class="repo-desc">Colección de wordlists para fuzzing, credenciales y reconocimiento.</div></div>
-                    <span class="repo-lang">txt</span>
-                </div>
-                <div class="repo-item">
-                    <div><div class="repo-name">impacket</div><div class="repo-desc">Scripts Python para protocolos de red Windows. SMB, Kerberos, NTLM.</div></div>
-                    <span class="repo-lang">python</span>
-                </div>
-                <div class="repo-item">
-                    <div><div class="repo-name">PayloadsAllTheThings</div><div class="repo-desc">Payloads y bypasses para testing de seguridad y CTFs.</div></div>
-                    <span class="repo-lang">md</span>
-                </div>
-                <div class="repo-item">
-                    <div><div class="repo-name">PEASS-ng</div><div class="repo-desc">Privilege escalation tools. LinPEAS / WinPEAS.</div></div>
-                    <span class="repo-lang">bash / ps1</span>
-                </div>
-                <div class="repo-item">
-                    <div><div class="repo-name">mimikatz</div><div class="repo-desc">Extracción de credenciales y manipulación de autenticación Windows.</div></div>
-                    <span class="repo-lang">c</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- §06 NOW -->
-    <section id="now" class="sec">
-        <div class="sec-label">
-            <span class="sec-num">§05</span>
-            <span class="sec-title">Now</span>
-            <div class="sec-rule"></div>
-        </div>
-
-        <div class="now-grid">
-            <div class="now-card">
-                <div class="now-card-label">Estudiando</div>
-                <div class="now-item">
-                    <span class="now-bullet">▸</span>
-                    <div>
-                        <div class="now-text">2º SMR — Sistemas Microinformáticos y Redes</div>
-                        <div class="now-sub">formación profesional · en curso</div>
-                    </div>
-                </div>
-                <div class="now-item">
-                    <span class="now-bullet">▸</span>
-                    <div>
-                        <div class="now-text">Active Directory — ataques y defensa</div>
-                        <div class="now-sub">Kerberoasting · Pass-the-Hash · BloodHound</div>
-                    </div>
-                </div>
-                <div class="now-item">
-                    <span class="now-bullet">▸</span>
-                    <div>
-                        <div class="now-text">Análisis de tráfico y protocolos</div>
-                        <div class="now-sub">Wireshark · disección manual de capturas</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="now-card">
-                <div class="now-card-label">Trabajando en</div>
-                <div class="now-item">
-                    <span class="now-bullet">▸</span>
-                    <div>
-                        <div class="now-text">Panel de control local</div>
-                        <div class="now-sub">radar de red · WoL · sin dependencias</div>
-                    </div>
-                </div>
-                <div class="now-item">
-                    <span class="now-bullet">▸</span>
-                    <div>
-                        <div class="now-text">Automatización de auditorías con Python</div>
-                        <div class="now-sub">scripting · reporte automatizado</div>
-                    </div>
-                </div>
-                <div class="now-item">
-                    <span class="now-bullet">▸</span>
-                    <div>
-                        <div class="now-text">Laboratorio Hyper-V</div>
-                        <div class="now-sub">segmentación · pruebas de pivoting</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="now-card">
-                <div class="now-card-label">Plataformas</div>
-                <div class="now-stat"><span class="now-stat-k">HackTheBox</span><span class="now-stat-v active">activo</span></div>
-                <div class="now-stat"><span class="now-stat-k">TryHackMe</span><span class="now-stat-v active">activo</span></div>
-                <div class="now-stat"><span class="now-stat-k">PortSwigger Labs</span><span class="now-stat-v active">activo</span></div>
-                <div class="now-stat"><span class="now-stat-k">VulnHub</span><span class="now-stat-v">ocasional</span></div>
-            </div>
-
-            <div class="now-card">
-                <div class="now-card-label">Próximamente</div>
-                <div class="now-item">
-                    <span class="now-bullet">▸</span>
-                    <div>
-                        <div class="now-text">eJPT — eLearnSecurity Junior Penetration Tester</div>
-                        <div class="now-sub">certificación en preparación</div>
-                    </div>
-                </div>
-                <div class="now-item">
-                    <span class="now-bullet">▸</span>
-                    <div>
-                        <div class="now-text">Writeups — primeras publicaciones</div>
-                        <div class="now-sub">CTF + máquinas retiradas</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- §07 BIO -->
-    <section id="bio" class="sec">
-        <div class="sec-label">
-            <span class="sec-num">§06</span>
-            <span class="sec-title">Bio</span>
-            <div class="sec-rule"></div>
-        </div>
-        <p class="bio-text">
-            Soy estudiante de Ciberseguridad centrado en <strong>Red Team</strong> y <strong>Seguridad en Redes</strong>.
-            Mi pasión reside en comprender cómo funcionan los sistemas para encontrar formas creativas
-            de securizarlos (o romperlos). Me dedico a la configuración avanzada de infraestructuras,
-            auditoría de seguridad y el desarrollo de herramientas.
-        </p>
-    </section>
-
-    <!-- FOSS pill -->
-    <div class="foss-wrap">
-        <div class="foss-pill">
-            <div class="foss-dot"></div>
-            <div class="foss-text" id="foss-output"><span class="foss-cursor"></span></div>
-            <div class="foss-right">
-                <span class="foss-count" id="foss-count">01/16</span>
-                <button id="foss-next">next</button>
-            </div>
-        </div>
+        <span class="edu-status wip">planificado</span>
+      </div>
     </div>
 
-</div>
+    <div class="cert-wrap reveal">
+      <div class="cert-label">Certificaciones</div>
+      <div class="cert-grid">
+        <span class="cert-chip"><span class="cd"></span>Cisco Ethical Hacking (NetAcad)</span>
+        <span class="cert-chip"><span class="cd"></span>CyberOps Associate</span>
+        <span class="cert-chip"><span class="cd"></span>CCNA</span>
+        <span class="cert-chip"><span class="cd"></span>Go Basic (HackerRank)</span>
+        <span class="cert-chip wip"><span class="cd"></span>eJPT v2 — en progreso</span>
+      </div>
+    </div>
+  </section>
 
-<!-- FOOTER -->
+  <section id="projects" class="sec">
+    <div class="sec-label reveal">
+      <span class="sec-num">§03</span>
+      <span class="sec-title">Proyectos</span>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="proj-list reveal-stagger">
+      <div class="proj-item">
+        <span class="proj-idx">001</span>
+        <div>
+          <div class="proj-name">IPROT</div>
+          <div class="proj-desc">Rotación automática de IPs a través de la red TOR. Para operaciones red team que requieren anonimato persistente sin gestión manual de cadenas de proxy.</div>
+          <a class="proj-link" href="https://github.com/quadraturbo/IPROT" target="_blank" rel="noopener noreferrer">github.com/quadraturbo/IPROT</a>
+        </div>
+        <span class="proj-status live">publicado</span>
+      </div>
+      <div class="proj-item">
+        <span class="proj-idx">002</span>
+        <div>
+          <div class="proj-name">wifi-optimizer</div>
+          <div class="proj-desc">CLI en Rust para diagnóstico y optimización de red inalámbrica sobre la Windows Native Wi-Fi API, aplicando principios de ingeniería RF. Cobertura de tests completa.</div>
+          <a class="proj-link" href="https://github.com/quadraturbo/wifi-optimizer" target="_blank" rel="noopener noreferrer">en desarrollo</a> 
+        </div>
+        <span class="proj-status live">v1.0</span>
+      </div>
+      <div class="proj-item">
+        <span class="proj-idx">003</span>
+        <div>
+          <div class="proj-name">cryptenv-cli</div>
+          <div class="proj-desc">Herramienta Python para cifrar ficheros .env con AES-256-GCM e integración con el keyring del sistema operativo. Publicada en PyPI.</div>
+          <a class="proj-link" href="https://github.com/quadraturbo/cryptenv-cli" target="_blank" rel="noopener noreferrer">github.com/quadraturbo/cryptenv-cli</a>
+        </div>
+        <span class="proj-status live">PyPI</span>
+      </div>
+      <div class="proj-item">
+        <span class="proj-idx">004</span>
+        <div>
+          <div class="proj-name">Integrity Checker</div>
+          <div class="proj-desc">Suite forense para verificación masiva de integridad de archivos. Cadenas de custodia digital, detección de manipulaciones, generación de informes.</div>
+          <a class="proj-link" href="https://github.com/quadraturbo/integrity-checker" target="_blank" rel="noopener noreferrer">github.com/quadraturbo/integrity-checker</a>
+        </div>
+        <span class="proj-status live">v1.0</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="services" class="sec">
+    <div class="sec-label reveal">
+      <span class="sec-num">§04</span>
+      <span class="sec-title">Servicios</span>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="svc-grid reveal">
+      <div class="svc-item">
+        <div class="svc-name">Auditoría de Seguridad</div>
+        <ul class="svc-list">
+          <li>Pentesting web y aplicaciones móviles</li>
+          <li>Auditoría de infraestructura de red</li>
+          <li>Análisis de configuraciones</li>
+          <li>Revisión de código seguro</li>
+        </ul>
+      </div>
+      <div class="svc-item">
+        <div class="svc-name">Securización Física</div>
+        <ul class="svc-list">
+          <li>Physical penetration testing</li>
+          <li>Evaluación de controles de acceso</li>
+          <li>Social engineering assessments</li>
+          <li>Análisis de procedimientos internos</li>
+        </ul>
+      </div>
+      <div class="svc-item">
+        <div class="svc-name">Auditoría Remota</div>
+        <ul class="svc-list">
+          <li>Vulnerability assessments</li>
+          <li>Análisis de configuración cloud</li>
+          <li>Red team operations</li>
+          <li>Informes ejecutivos y técnicos</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="recursos" class="sec">
+    <div class="sec-label reveal">
+      <span class="sec-num">§05</span>
+      <span class="sec-title">Recursos</span>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="tab-nav reveal">
+      <button class="tab-btn active" data-tab="tools">Herramientas</button>
+      <button class="tab-btn" data-tab="reads">Lecturas</button>
+      <button class="tab-btn" data-tab="repos">Repos</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-tools">
+      <div class="tool-grid">
+        <div class="tool-item"><div class="tool-name">Burp Suite</div><div class="tool-cat">web · proxy</div></div>
+        <div class="tool-item"><div class="tool-name">Metasploit</div><div class="tool-cat">explotación · post</div></div>
+        <div class="tool-item"><div class="tool-name">Nmap / Masscan</div><div class="tool-cat">reconocimiento · red</div></div>
+        <div class="tool-item"><div class="tool-name">Ghidra</div><div class="tool-cat">reversing · análisis</div></div>
+        <div class="tool-item"><div class="tool-name">Wireshark</div><div class="tool-cat">captura · análisis</div></div>
+        <div class="tool-item"><div class="tool-name">Proxmark3</div><div class="tool-cat">RFID · NFC</div></div>
+        <div class="tool-item"><div class="tool-name">Bloodhound</div><div class="tool-cat">AD · grafos</div></div>
+        <div class="tool-item"><div class="tool-name">CrackMapExec</div><div class="tool-cat">lateral · SMB</div></div>
+        <div class="tool-item"><div class="tool-name">ffuf</div><div class="tool-cat">fuzzing · web</div></div>
+        <div class="tool-item"><div class="tool-name">SQLMap</div><div class="tool-cat">injection · DB</div></div>
+        <div class="tool-item"><div class="tool-name">Volatility</div><div class="tool-cat">forense · memoria</div></div>
+        <div class="tool-item"><div class="tool-name">Autopsy</div><div class="tool-cat">forense · disco</div></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-reads">
+      <div class="reads-list">
+        <div class="read-item"><div><div class="read-title">The Web Application Hacker's Handbook</div><div class="read-auth">Stuttard &amp; Pinto</div></div><span class="read-tag">WEB</span></div>
+        <div class="read-item"><div><div class="read-title">Hacking: The Art of Exploitation</div><div class="read-auth">Jon Erickson</div></div><span class="read-tag">BAJO NIVEL</span></div>
+        <div class="read-item"><div><div class="read-title">The Hacker Playbook 3</div><div class="read-auth">Peter Kim</div></div><span class="read-tag">RED TEAM</span></div>
+        <div class="read-item"><div><div class="read-title">Penetration Testing</div><div class="read-auth">Georgia Weidman</div></div><span class="read-tag">PENTESTING</span></div>
+        <div class="read-item"><div><div class="read-title">Phrack Magazine</div><div class="read-auth">phrack.org</div></div><span class="read-tag">ZINE</span></div>
+        <div class="read-item"><div><div class="read-title">PortSwigger Web Security Academy</div><div class="read-auth">portswigger.net</div></div><span class="read-tag">LABS</span></div>
+        <div class="read-item"><div><div class="read-title">HackTricks</div><div class="read-auth">book.hacktricks.xyz</div></div><span class="read-tag">REFERENCIA</span></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-repos">
+      <div class="repo-list">
+        <div class="repo-item"><div><div class="repo-name">SecLists</div><div class="repo-desc">Colección de wordlists para fuzzing, credenciales y reconocimiento.</div></div><span class="repo-lang">txt</span></div>
+        <div class="repo-item"><div><div class="repo-name">impacket</div><div class="repo-desc">Scripts Python para protocolos de red Windows. SMB, Kerberos, NTLM.</div></div><span class="repo-lang">python</span></div>
+        <div class="repo-item"><div><div class="repo-name">PayloadsAllTheThings</div><div class="repo-desc">Payloads y bypasses para testing de seguridad y CTFs.</div></div><span class="repo-lang">md</span></div>
+        <div class="repo-item"><div><div class="repo-name">PEASS-ng</div><div class="repo-desc">Privilege escalation tools. LinPEAS / WinPEAS.</div></div><span class="repo-lang">bash / ps1</span></div>
+        <div class="repo-item"><div><div class="repo-name">mimikatz</div><div class="repo-desc">Extracción de credenciales y manipulación de autenticación Windows.</div></div><span class="repo-lang">c</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="now" class="sec">
+    <div class="sec-label reveal">
+      <span class="sec-num">§06</span>
+      <span class="sec-title">Now</span>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="now-grid reveal-stagger">
+      <div class="now-card">
+        <div class="now-card-label">Estudiando</div>
+        <div class="now-item"><span class="now-bullet">▸</span><div><div class="now-text">ASIR — módulos de infraestructura y redes</div><div class="now-sub">en curso</div></div></div>
+        <div class="now-item"><span class="now-bullet">▸</span><div><div class="now-text">Active Directory — ataques y defensa</div><div class="now-sub">Kerberoasting · Pass-the-Hash · BloodHound</div></div></div>
+        <div class="now-item"><span class="now-bullet">▸</span><div><div class="now-text">Análisis de tráfico y protocolos</div><div class="now-sub">Wireshark · disección manual de capturas</div></div></div>
+      </div>
+
+      <div class="now-card">
+        <div class="now-card-label">Trabajando en</div>
+        <div class="now-item"><span class="now-bullet">▸</span><div><div class="now-text">cryptenv-cli — próxima versión</div><div class="now-sub">mejoras de integración con keyring</div></div></div>
+        <div class="now-item"><span class="now-bullet">▸</span><div><div class="now-text">Automatización de auditorías con Python</div><div class="now-sub">scripting · reporte automatizado</div></div></div>
+        <div class="now-item"><span class="now-bullet">▸</span><div><div class="now-text">Laboratorio Hyper-V + pfSense</div><div class="now-sub">segmentación · pruebas de pivoting</div></div></div>
+      </div>
+
+      <div class="now-card">
+        <div class="now-card-label">Plataformas</div>
+        <div class="now-stat"><span class="now-stat-k">HackTheBox</span><span class="now-stat-v active">activo</span></div>
+        <div class="now-stat"><span class="now-stat-k">TryHackMe</span><span class="now-stat-v active">activo</span></div>
+        <div class="now-stat"><span class="now-stat-k">PortSwigger Labs</span><span class="now-stat-v active">activo</span></div>
+        <div class="now-stat"><span class="now-stat-k">VulnHub</span><span class="now-stat-v">ocasional</span></div>
+      </div>
+
+      <div class="now-card">
+        <div class="now-card-label">Próximamente</div>
+        <div class="now-item"><span class="now-bullet">▸</span><div><div class="now-text">eJPT v2 — eLearnSecurity Junior Penetration Tester</div><div class="now-sub">certificación en preparación</div></div></div>
+        <div class="now-item"><span class="now-bullet">▸</span><div><div class="now-text">CETI — especialización en ciberseguridad</div><div class="now-sub">IES Punta del Verde</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="bio" class="sec">
+    <div class="sec-label reveal">
+      <span class="sec-num">§07</span>
+      <span class="sec-title">Bio</span>
+      <div class="sec-rule"></div>
+    </div>
+    <p class="bio-text reveal">
+      Soy técnico en <strong>SMR</strong> y estudiante de <strong>ASIR</strong>, centrado en <strong>red team</strong> y
+      <strong> seguridad en redes</strong>. Mi pasión reside en comprender cómo funcionan los sistemas para encontrar
+      formas creativas de securizarlos — o de romperlos. Me dedico a la configuración avanzada de infraestructuras,
+      auditoría de seguridad y el desarrollo de herramientas propias.
+    </p>
+  </section>
+
+  </div>
+
+<button id="back-to-top" aria-label="Volver arriba">↑</button>
+
 <footer class="site-footer">
-    <div class="footer-inner">
-        <div class="footer-phrase">
-            <div class="footer-phrase-text">
-                <span class="fp-white">Hack the </span><span class="fp-green">Planet</span><span class="fp-sep"> ⛧ </span><span class="fp-dim">Help the </span><span class="fp-white">Helpless.</span>
-            </div>
-            <span class="footer-phrase-sub">foss forever</span>
-        </div>
-        <div class="footer-bottom">
-            <span class="footer-copy">© 2026 quadraturbo. code &amp; security.</span>
-            <div class="footer-links">
-                <a href="https://github.com/quadraturbo" target="_blank">github</a>
-            </div>
-        </div>
+  <div class="footer-inner">
+    <div class="footer-phrase">
+      <div class="footer-phrase-text">
+        <span class="fp-white">Hack the </span><span class="fp-green">Planet</span><span class="fp-sep"> ⛧ </span><span class="fp-dim">Help the </span><span class="fp-white">Helpless.</span>
+      </div>
+      <span class="footer-phrase-sub">foss forever</span>
     </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 quadraturbo. code &amp; security.</span>
+      <div class="footer-links">
+        <a href="https://github.com/quadraturbo" target="_blank" rel="noopener noreferrer">github</a>
+      </div>
+    </div>
+  </div>
 </footer>
 
 <script>
-// ── Banner nav offset ──
-function adjustNav() {
-    const b = document.getElementById('android-banner');
-    const n = document.querySelector('.nav-bar');
-    if (b && n) n.style.top = b.offsetHeight + 'px';
-}
-setTimeout(adjustNav, 350);
-window.addEventListener('resize', adjustNav);
+(function() {
+  var fill = document.getElementById('bootFill');
+  var boot = document.getElementById('boot');
+  requestAnimationFrame(function() { fill.style.width = '100%'; });
+  setTimeout(function() { boot.classList.add('hidden'); }, 1500);
+})();
 
-// ── Tabs ──
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const tab = btn.dataset.tab;
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('tab-' + tab).classList.add('active');
+document.querySelectorAll('.tab-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+  });
+});
+
+var io = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal, .reveal-stagger').forEach(function(el) { io.observe(el); });
+
+(function() {
+  var bar = document.getElementById('scroll-progress');
+  var toTop = document.getElementById('back-to-top');
+  var ticking = false;
+
+  function onScroll() {
+    var scrollTop = window.scrollY;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    bar.style.width = pct + '%';
+    toTop.classList.toggle('visible', scrollTop > 480);
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      requestAnimationFrame(onScroll);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  onScroll();
+
+  toTop.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+
+(function() {
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-links a'));
+  var sections = navLinks.map(function(a) { return document.querySelector(a.getAttribute('href')); }).filter(Boolean);
+
+  var navObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      var id = '#' + entry.target.id;
+      var link = navLinks.find(function(a) { return a.getAttribute('href') === id; });
+      if (!link) return;
+      if (entry.isIntersecting) {
+        navLinks.forEach(function(a) { a.classList.remove('active'); });
+        link.classList.add('active');
+      }
     });
-});
+  }, { rootMargin: '-40% 0px -50% 0px', threshold: 0 });
 
-// ── FOSS typewriter ──
-const signals = [
-    "El software libre no es cuestión de precio. Es cuestión de libertad.",
-    '"Free software" means software that respects your freedom and your community.',
-    "Si no puedes auditar el código, no puedes confiar en él.",
-    "Tus datos son el producto. Tú eres la mercancía.",
-    "GNU/Linux: construido por miles de manos que nunca se conocerán entre sí.",
-    "La privacidad no es para esconder algo. Es para proteger todo.",
-    "Open source is not a feature. It is the foundation.",
-    "Las patentes de software son cercas en el campo de las ideas.",
-    "Encriptar no es sospechoso. No encriptar es irresponsable.",
-    "El código abierto es la única forma de verificar que una herramienta hace lo que dice.",
-    "DRM no protege a los artistas. Protege a las plataformas.",
-    "La infraestructura crítica sobre software propietario es una vulnerabilidad sistémica.",
-    "Cada backdoor instalada por un gobierno es una puerta abierta para todos.",
-    "La vigilancia masiva no nos hace más seguros. Nos hace más controlables.",
-    "fork · audit · contribute. No pidas permiso.",
-    "El conocimiento que no se comparte es poder que se concentra.",
-];
-let idx = Math.floor(Math.random() * signals.length), timer = null;
-const out = document.getElementById('foss-output');
-const cnt = document.getElementById('foss-count');
-const btn = document.getElementById('foss-next');
-function pad(n) { return String(n+1).padStart(2,'0'); }
-function type(text) {
-    clearTimeout(timer);
-    cnt.textContent = pad(idx) + '/' + pad(signals.length - 1);
-    out.innerHTML = '<span class="foss-cursor"></span>';
-    let i = 0, b = '';
-    (function tick() {
-        if (i >= text.length) { out.innerHTML = b + '<span class="foss-cursor"></span>'; return; }
-        b += text[i++]; out.innerHTML = b + '<span class="foss-cursor"></span>';
-        timer = setTimeout(tick, 20);
-    })();
-}
-function next() { idx = (idx+1) % signals.length; type(signals[idx]); }
-btn.addEventListener('click', next);
-document.addEventListener('keydown', e => {
-    if (document.activeElement.tagName === 'INPUT') return;
-    if (e.code === 'Space' || e.code === 'ArrowRight') { e.preventDefault(); next(); }
-});
-type(signals[idx]);
+  sections.forEach(function(s) { navObserver.observe(s); });
+})();
+
+(function() {
+  var hero = document.querySelector('.hero');
+  if (!hero || window.matchMedia('(pointer: coarse)').matches) return;
+  var raf = null;
+  hero.addEventListener('mousemove', function(e) {
+    var rect = hero.getBoundingClientRect();
+    var x = ((e.clientX - rect.left) / rect.width) * 100;
+    var y = ((e.clientY - rect.top) / rect.height) * 100;
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function() {
+      hero.style.setProperty('--mx', x + '%');
+      hero.style.setProperty('--my', y + '%');
+    });
+  });
+})();
 </script>
 
 </body>
