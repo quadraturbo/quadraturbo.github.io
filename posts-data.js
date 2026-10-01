@@ -46,7 +46,7 @@ curl -I http://localhost:8080
 # Server: Apache/2.4.49 (Unix)
 \`\`\`
 
-Para la parte interesante —la escalada a RCE— necesitas \`mod_cgi\` cargado y un script accesible bajo \`/cgi-bin/\`:
+Para la parte interesante (la escalada a RCE) necesitas \`mod_cgi\` cargado y un script accesible bajo \`/cgi-bin/\`:
 
 \`\`\`bash
 docker exec -it apache-vuln bash
@@ -69,7 +69,7 @@ El \`--path-as-is\` no es decorativo: sin él, \`curl\` normaliza la URI él sol
 
 ## Fase 2: de leer ficheros a ejecutar comandos
 
-Aquí está la parte que de verdad convierte esto en crítico. Si el traversal apunta a un **binario del sistema** en vez de a un fichero estático, y la petición cae bajo el handler de \`mod_cgi\`, Apache lo ejecuta como si fuera un script CGI — pasándole variables de entorno derivadas de tus headers HTTP.
+Aquí está la parte que convierte esto en crítico. Si el traversal apunta a un **binario del sistema** en vez de a un fichero estático, y la petición cae bajo el handler de \`mod_cgi\`, Apache lo ejecuta como si fuera un script CGI — pasándole variables de entorno derivadas de tus headers HTTP.
 
 \`\`\`bash
 curl -s --path-as-is \\
@@ -100,19 +100,15 @@ Esta es la lección que me llevo para cualquier auditoría futura: **un parche p
 
 Esa es la diferencia entre *tapar el PoC que te enseñaron* y *cerrar la clase de bug entera*.
 
-## Mitigación, para el lado blue
+## Mitigación, para el lado blue team
 
 - **WAF/regex** sobre secuencias \`%2e\` o \`%%32%65\` repetidas en el path, sobre todo dirigidas a \`/cgi-bin/\` — esto tapa síntomas, no la causa, pero gana tiempo.
-- \`Require all denied\` por defecto en el document root, abriendo solo lo estrictamente necesario — limita el blast radius del disclosure aunque no arregle el bug.
+- \`Require all denied\` por defecto en el document root, abriendo solo lo estrictamente necesario, limita el blast radius del disclosure aunque no arregle el bug.
 - Si no usas \`mod_cgi\`, desactívalo. Reduces de un plumazo toda esta clase de escalada.
 - Estas peticiones suelen dejar ráfagas de 400/403 en los logs antes de que alguien dé con la combinación correcta — correlar esos códigos contra \`/cgi-bin/\` es una detección barata y efectiva.
 
-## Nota legal, porque toca
+## Nota legal
 
-Todo esto se reprodujo en un contenedor Docker aislado, contra una versión de Apache pública y documentada como vulnerable desde hace más de tres años, sin tocar ningún sistema de terceros.
-
----
-
-*Próximo post de la serie: bajar al código fuente de \`ap_normalize_path()\` en C y ver línea a línea dónde se rompe, para quien quiera dejar de quedarse en el PoC HTTP y entender el bug a nivel de C.*`
+Todo esto se reprodujo en un contenedor Docker aislado, contra una versión de Apache pública y documentada como vulnerable desde hace más de tres años, sin tocar ningún sistema de terceros.`
   }
 ];
