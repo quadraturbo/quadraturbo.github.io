@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
 <title>quadraturbo — red team &amp; security research</title>
 <meta name="description" content="quadraturbo — pentesting, seguridad de redes y desarrollo de herramientas de seguridad. Portfolio y notas técnicas.">
 <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -74,13 +75,14 @@
 .avail-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 2.4s infinite;flex-shrink:0}
 
 /* GRAPH */
+.graph-section{width:min(1160px,calc(100vw - 40px));margin-left:50%;transform:translateX(-50%)}
 .graph-head{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
 .graph-head .gh-t{font-size:11px;font-weight:600;color:var(--ink);letter-spacing:.16em;text-transform:uppercase}
 .graph-head .gh-s{font-size:11px;color:var(--ink-dim)}
 .graph-wrap{position:relative;display:grid;grid-template-columns:1fr 290px;border:1px solid var(--border);border-radius:4px;overflow:hidden;background:radial-gradient(circle at 1px 1px,rgba(255,255,255,.022) 1px,transparent 0) 0 0/22px 22px,var(--bg-soft)}
-#graph{width:100%;height:520px;display:block;cursor:grab;touch-action:none}
+#graph{width:100%;height:640px;display:block;cursor:grab;touch-action:none}
 #graph:active{cursor:grabbing}
-.panel{border-left:1px solid var(--border);background:rgba(10,12,15,.55);padding:20px 18px;display:flex;flex-direction:column;min-height:520px}
+.panel{border-left:1px solid var(--border);background:rgba(10,12,15,.55);padding:20px 18px;display:flex;flex-direction:column;min-height:640px}
 .pc-type{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:10px;display:inline-flex;align-items:center;gap:7px;color:var(--ink)}
 .pc-type .sw{width:9px;height:9px;border-radius:50%}
 .pc-name{font-size:18px;font-weight:600;color:var(--ink-hi);letter-spacing:-.01em;margin-bottom:10px;line-height:1.25}
@@ -214,8 +216,9 @@
 .svc-rule{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
 
 @media(max-width:820px){
+  .graph-section{width:auto;margin-left:0;transform:none}
   .graph-wrap{grid-template-columns:1fr}
-  #graph{height:420px}
+  #graph{height:500px}
   .panel{border-left:none;border-top:1px solid var(--border);min-height:0}
   .gctl{right:14px}.legend{left:10px;bottom:10px}
 }
@@ -270,6 +273,7 @@
       <div class="hero-meta-item avail"><span class="avail-dot"></span>disponible</div>
     </div>
 
+    <div class="graph-section">
     <div class="graph-head reveal">
       <span class="gh-t">Attack surface map</span>
       <span class="gh-s">// mi perfil como grafo — explóralo</span>
@@ -302,6 +306,7 @@
       <span><kbd>drag</kbd> mueve nodos</span>
       <span><kbd>scroll</kbd> zoom</span>
       <span><kbd>click</kbd> fija · abre repo</span>
+    </div>
     </div>
   </section>
 
@@ -517,17 +522,18 @@
   const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const sim=d3.forceSimulation(nodes)
-    .force('link',d3.forceLink(links).id(d=>d.id).distance(l=>{const t=l.target.type;return t==='area'?95:(t==='core'?90:70);}).strength(.5))
-    .force('charge',d3.forceManyBody().strength(-340))
+    .force('link',d3.forceLink(links).id(d=>d.id).distance(l=>{const t=l.target.type;return t==='area'?128:(t==='core'?112:92);}).strength(.45))
+    .force('charge',d3.forceManyBody().strength(-470))
     .force('center',d3.forceCenter(W/2,H/2))
-    .force('collide',d3.forceCollide().radius(d=>d.r+14))
-    .force('x',d3.forceX(W/2).strength(.05)).force('y',d3.forceY(H/2).strength(.05));
+    .force('collide',d3.forceCollide().radius(d=>d.r+20))
+    .force('x',d3.forceX(W/2).strength(.05)).force('y',d3.forceY(H/2).strength(.06));
   if(reduce){sim.stop();for(let i=0;i<220;i++)sim.tick();}
 
   const link=gLink.selectAll('line').data(links).join('line').attr('class','link');
   const linkLabel=gLabel.selectAll('text').data(links).join('text').attr('class','link-label').text(d=>d.verb);
   const node=gNode.selectAll('g').data(nodes).join('g').attr('class','node')
     .call(d3.drag().on('start',dragStart).on('drag',dragged).on('end',dragEnd));
+  node.append('circle').attr('class','hit').attr('r',d=>d.r+12).attr('fill','transparent');
   node.append('circle').attr('class','ring').attr('r',d=>d.r+6).attr('stroke',d=>COLORS[d.type]).attr('stroke-width',1.5);
   node.append('circle').attr('r',d=>d.r)
     .attr('fill',d=>(d.type==='project'||d.type==='content')?'var(--bg)':COLORS[d.type])
@@ -551,10 +557,10 @@
   d3.select('#zoomReset').on('click',()=>svg.transition().call(zoom.transform,d3.zoomIdentity));
 
   const meData=nodes.find(n=>n.id==='me');
-  let pinned=meData;
-  node.on('mouseenter',(e,d)=>highlight(d,false))
-      .on('mouseleave',()=>highlight(pinned,pinned.id==='me'))
-      .on('click',(e,d)=>{e.stopPropagation();pinned=d;highlight(d,false);});
+  let pinned=meData,leaveTimer=null;
+  node.on('mouseenter',(e,d)=>{clearTimeout(leaveTimer);highlight(d,false);})
+      .on('mouseleave',()=>{clearTimeout(leaveTimer);leaveTimer=setTimeout(()=>highlight(pinned,pinned.id==='me'),160);})
+      .on('click',(e,d)=>{e.stopPropagation();clearTimeout(leaveTimer);pinned=d;highlight(d,false);});
   svg.on('click',()=>{pinned=meData;highlight(meData,true);});
 
   function highlight(d,soft){
