@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://quadraturbo.github.io/sitemap.xml

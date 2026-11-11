@@ -1,0 +1,8 @@
+.og { width: 1200px; height: 630px; overflow: hidden; }
+.og-card { width: 1200px; height: 630px; padding: 96px 84px 0; position: relative; border-top: 6px solid var(--accent); }
+.og .eyebrow { font-size: 24px; gap: 16px; margin-bottom: 30px; }
+.og .dot { width: 12px; height: 12px; }
+.og-name { font: 600 124px/1 var(--mono); color: var(--ink-hi); letter-spacing: -.04em; margin-bottom: 44px; }
+.og .caret { animation: none; }
+.og-lead { font-size: 34px; line-height: 1.4; color: var(--ink); max-width: 900px; }
+.og-url { position: absolute; right: 84px; bottom: 64px; font: 600 26px var(--mono); color: var(--accent); }

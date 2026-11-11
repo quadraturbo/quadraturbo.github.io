@@ -1,0 +1,12 @@
+{
+  "name": "quadraturbo.github.io",
+  "private": true,
+  "type": "module",
+  "description": "Portfolio y blog estáticos de quadraturbo. Sin dependencias en runtime ni en el build.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "serve": "python3 -m http.server 8000",
+    "vendor": "npx --yes esbuild@0.28 scripts/d3-entry.mjs --bundle --minify --format=iife --global-name=d3 --target=es2019 --legal-comments=none --outfile=vendor/d3-graph.min.js"
+  },
+  "engines": { "node": ">=18" }
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>quadraturbo — blog</title>
+    <link>https://quadraturbo.github.io/blog/</link>
+    <atom:link href="https://quadraturbo.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <description>Notas, técnicas y writeups de ciberseguridad.</description>
+    <language>es</language>
+    <lastBuildDate>Fri, 02 Oct 2026 00:00:00 GMT</lastBuildDate>
+    <item>
+      <title>De CVE a PoC: diseccionando CVE-2021-41773 en Apache</title>
+      <link>https://quadraturbo.github.io/blog/cve-2021-41773-apache-path-traversal-rce/</link>
+      <guid isPermaLink="true">https://quadraturbo.github.io/blog/cve-2021-41773-apache-path-traversal-rce/</guid>
+      <pubDate>Fri, 02 Oct 2026 00:00:00 GMT</pubDate>
+      <category>Web</category>
+      <description>Apache 2.4.49 tuvo un path traversal que escalaba a RCE sin autenticación. En vez de bajar el exploit de GitHub, lo reconstruyo desde el advisory.</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,4 @@
+Contact: mailto:TODO-alias@example.invalid
+Expires: 2027-11-11T00:00:00Z
+Preferred-Languages: es, en
+Canonical: https://quadraturbo.github.io/.well-known/security.txt

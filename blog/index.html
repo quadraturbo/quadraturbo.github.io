@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#07080a">
+<title>Blog — quadraturbo</title>
+<meta name="description" content="Blog de ciberseguridad de quadraturbo: notas, técnicas y writeups de pentesting, redes y red team.">
+<meta name="author" content="quadraturbo">
+<link rel="canonical" href="https://quadraturbo.github.io/blog/">
+<link rel="alternate" type="application/rss+xml" title="quadraturbo — blog" href="/feed.xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="quadraturbo">
+<meta property="og:title" content="Blog — quadraturbo">
+<meta property="og:description" content="Blog de ciberseguridad de quadraturbo: notas, técnicas y writeups de pentesting, redes y red team.">
+<meta property="og:url" content="https://quadraturbo.github.io/blog/">
+<meta property="og:locale" content="es_ES">
+<meta property="og:image" content="https://quadraturbo.github.io/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script src="/assets/js/redirect.js"></script>
+<link rel="preload" href="/assets/fonts/plex-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/plex-mono-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/js/head.js"></script>
+
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header class="nav-bar">
+  <a href="/" class="nav-handle"><span class="dot" aria-hidden="true"></span>quadraturbo</a>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu"><span class="nav-toggle-icon" aria-hidden="true"></span>Menú</button>
+  <nav id="nav-menu" class="nav-menu" aria-label="Principal">
+    <ul>
+      <li><a href="/#proyectos">proyectos</a></li>
+      <li><a href="/blog/" aria-current="page">blog</a></li>
+      <li><a href="/#formacion">formación</a></li>
+      <li><a href="/#now">ahora</a></li>
+      <li><a href="/#contacto">contacto</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="contenido" class="page">
+  <section class="blog-hero" aria-labelledby="blog-title">
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>notas, técnicas y writeups</p>
+    <h1 class="page-title" id="blog-title">Blog</h1>
+    <p class="hero-lead">Apuntes de red team, redes y todo lo que me parezca interesante escribir.</p>
+    <p class="blog-note">Contenido educativo y defensivo. Las pruebas se hacen en laboratorios propios o entornos autorizados, sobre vulnerabilidades ya publicadas y parcheadas.</p>
+
+    <div class="blog-controls" id="blogControls">
+      <div class="control-row">
+        <label class="search-wrap"><span class="sr-only">Buscar posts</span><input type="search" id="searchInput" class="search-input" placeholder="Buscar por título, etiqueta o resumen" autocomplete="off"></label>
+        <label><span class="sr-only">Ordenar posts</span><select id="sortSelect" class="sort-select"><option value="newest">Más recientes</option><option value="oldest">Más antiguos</option></select></label>
+      </div>
+      <div class="cat-filters" role="group" aria-label="Filtrar por categoría">
+        <button type="button" class="cat-pill" aria-pressed="true" data-cat="all">Todos <span class="n">1</span></button>
+        <button type="button" class="cat-pill" aria-pressed="false" data-cat="web">Web <span class="n">1</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="blog-list" aria-label="Posts">
+    <p class="post-count" id="postCount" aria-live="polite">1 post</p>
+    <ul class="post-list" id="postList">
+      <li class="post-card" data-cat="web" data-date="2026-10-02" data-search="de cve a poc: diseccionando cve-2021-41773 en apache apache 2.4.49 tuvo un path traversal que escalaba a rce sin autenticación. en vez de bajar el exploit de github, lo reconstruyo desde el advisory. web path-traversal rce cve-analysis apache web">
+        <a class="post-link" href="/blog/cve-2021-41773-apache-path-traversal-rce/">
+          <h2 class="post-card-title">De CVE a PoC: diseccionando CVE-2021-41773 en Apache</h2>
+          <p class="post-meta"><span class="cat-tag">Web</span><time datetime="2026-10-02">2 oct 2026</time><span aria-hidden="true">·</span><span>5 min de lectura</span></p>
+          <p class="post-excerpt">Apache 2.4.49 tuvo un path traversal que escalaba a RCE sin autenticación. En vez de bajar el exploit de GitHub, lo reconstruyo desde el advisory.</p>
+          <p class="post-tags"><span class="tag">web</span><span class="tag">path-traversal</span><span class="tag">rce</span><span class="tag">cve-analysis</span><span class="tag">apache</span></p>
+        </a>
+      </li>
+    </ul>
+    <p class="empty-state" id="emptyState" hidden>No hay posts que coincidan con ese filtro.</p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-phrase">
+      <p class="footer-phrase-text"><span class="fp-white">Hack the </span><span class="fp-green">Planet</span><span class="fp-sep"> ⛧ </span><span class="fp-dim">Help the </span><span class="fp-white">Helpless.</span></p>
+      <span class="footer-phrase-sub">foss forever</span>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 quadraturbo</span>
+      <ul class="footer-links">
+        <li><a href="https://github.com/quadraturbo" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+        <li><a href="mailto:TODO-alias@example.invalid">Contacto</a></li>
+        <li><a href="/feed.xml">RSS</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<button id="back-to-top" type="button" aria-label="Volver arriba" hidden>↑</button>
+<script src="/assets/js/site.js" defer></script>
+<script src="/assets/js/blog.js" defer></script>
+</body>
+</html>
